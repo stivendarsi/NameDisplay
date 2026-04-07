@@ -3,6 +3,7 @@ package me.stivendarsi.nameDisplay;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.EventManager;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
+import me.stivendarsi.nameDisplay.commands.CommandHandler;
 import me.stivendarsi.nameDisplay.events.UserLoginPacketHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,6 +33,8 @@ public final class NameDisplay extends JavaPlugin {
         PacketEvents.getAPI().load();
         EventManager events = PacketEvents.getAPI().getEventManager();
         events.registerListener(new UserLoginPacketHandler(), PacketListenerPriority.NORMAL);
+
+        CommandHandler.registerCommands(this.getLifecycleManager());
 
     }
 

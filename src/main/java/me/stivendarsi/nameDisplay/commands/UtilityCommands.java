@@ -2,15 +2,13 @@ package me.stivendarsi.nameDisplay.commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
-import me.stivendarsi.foliaSurvivalTools.proxychannelsystem.messagetypes.redis.RedisChannel;
-import me.stivendarsi.foliaSurvivalTools.userdata.interfaced.RedisUtil;
 import org.bukkit.entity.Player;
+
+import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 
 public class UtilityCommands {
     public static int reloadCommand(CommandContext<CommandSourceStack> context) {
-
-        RedisUtil.redis().publish(RedisChannel.RELOAD_PLUGIN.identifier(), "");
-
+        mainHandler().load();
         return 1;
     }
 

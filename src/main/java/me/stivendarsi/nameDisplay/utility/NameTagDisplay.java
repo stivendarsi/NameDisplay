@@ -70,9 +70,7 @@ public class NameTagDisplay {
     public WrapperPlayServerEntityMetadata getUpdatedTextPacket(Player player) {
         List<EntityData<?>> metadata = new ArrayList<>();
 
-        List<String> lines = List.of("Hey my name is:", player.getName());
-        String joinedText = String.join("<newline>", lines);
-        EntityData<?> textData = new EntityData<>(23, EntityDataTypes.ADV_COMPONENT, MiniMessage.miniMessage().deserialize(joinedText));
+        EntityData<?> textData = new EntityData<>(23, EntityDataTypes.ADV_COMPONENT, MiniMessage.miniMessage().deserialize(mainHandler().configurationHandler().getWithSetPlaceholders(player)));
 
         metadata.add(textData);
         return new WrapperPlayServerEntityMetadata(this.entityID, metadata);

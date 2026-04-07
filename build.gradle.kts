@@ -14,11 +14,16 @@ repositories {
     }
     maven { url = uri("https://repo.codemc.io/repository/maven-releases/") }
     maven { url = uri("https://repo.codemc.io/repository/maven-snapshots/") }
+
+    maven {
+        url = uri("https://repo.extendedclip.com/releases/")
+    }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.1.1.build.+")
     compileOnly("com.github.retrooper:packetevents-spigot:2.12.0")
+    compileOnly("me.clip:placeholderapi:2.12.2")
 }
 
 

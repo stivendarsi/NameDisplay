@@ -1,7 +1,12 @@
 package me.stivendarsi.nameDisplay.handlers;
 
+import me.clip.placeholderapi.PAPIComponents;
+import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.entity.Player;
+
 import java.util.List;
 
+import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 import static me.stivendarsi.nameDisplay.NameDisplay.plugin;
 
 public class ConfigurationHandler {
@@ -22,5 +27,9 @@ public class ConfigurationHandler {
 
     public String text() {
         return text;
+    }
+
+    public String getWithSetPlaceholders(Player player){
+        return mainHandler().placeholderApiEnabled() ? this.text : PlaceholderAPI.setPlaceholders(player, this.text);
     }
 }

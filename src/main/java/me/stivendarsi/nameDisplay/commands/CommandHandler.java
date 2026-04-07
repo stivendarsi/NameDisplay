@@ -11,7 +11,7 @@ public class CommandHandler {
     public static void registerCommands(LifecycleEventManager<Plugin> manager) {
         manager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             Commands commands = event.registrar();
-            commands.register(Commands.literal("namedisplay").then(Commands.literal("reload")).build(), List.of("dn"));
+            commands.register(Commands.literal("namedisplay").then(Commands.literal("reload").executes(UtilityCommands::reloadCommand)).build(), List.of("dn"));
         });
     }
 }
