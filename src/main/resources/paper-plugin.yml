@@ -1,0 +1,11 @@
+name: NameDisplay
+version: '$version'
+
+main: me.stivendarsi.nameDisplay.NameDisplay
+api-version: '26.1.1'
+load: POSTWORLD
+dependencies:
+  server:
+    packetevents:
+      load: BEFORE
+      required: true
