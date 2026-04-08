@@ -57,7 +57,10 @@ public class NameTagDisplay {
         this.ticking = false;
     }
 
-    // Start a scheduler if enabled, else update text once.
+
+    public void startIfNeed(){
+        if (!this.ticking) startTheUpdateAtFixedRate();
+    }
 
     private void startTheUpdateAtFixedRate(){
         Player owner = Bukkit.getPlayer(ownerUUID);

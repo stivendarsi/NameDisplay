@@ -19,6 +19,7 @@ public class SpawnDisplayHandler implements PacketListener {
             nameTagDisplay = new NameTagDisplay(owner.getUniqueId());
             mainHandler().displayHandler().registerDisplay(owner.getUniqueId(), nameTagDisplay);
         }
+        nameTagDisplay.startIfNeed();
         if (mainHandler().configurationHandler().showForOwners()) nameTagDisplay.showFor(event.getPlayer(), false);
     }
 }
