@@ -1,3 +1,5 @@
-update-interval: 3.0 #In seconds
+update-interval: 2.0 #In seconds
+show-for-owners: true
 text:
-  - " Hey my name is: "
+  - "Hey my name is: %player_name%"
+  - "I am at -> x: %player_x% y: %player_y% z: %player_z%"
