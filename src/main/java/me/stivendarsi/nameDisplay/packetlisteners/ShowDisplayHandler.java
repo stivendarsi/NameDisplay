@@ -2,7 +2,6 @@ package me.stivendarsi.nameDisplay.packetlisteners;
 
 import com.github.retrooper.packetevents.event.PacketListener;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
-import com.github.retrooper.packetevents.protocol.entity.type.EntityType;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
@@ -14,7 +13,7 @@ import org.bukkit.entity.Player;
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 import static me.stivendarsi.nameDisplay.NameDisplay.plugin;
 
-public class RidingHandler implements PacketListener {
+public class ShowDisplayHandler implements PacketListener {
     @Override
     public void onPacketSend(PacketSendEvent event) {
         if (event.getPacketType() != PacketType.Play.Server.SPAWN_ENTITY) {
@@ -38,7 +37,7 @@ public class RidingHandler implements PacketListener {
         System.out.println("owner: " +  owner.getName());
 
         viewer.getScheduler().runDelayed(plugin(), task -> {
-            nameTagDisplay.showFor(viewer, owner.getUniqueId().equals(viewer.getUniqueId()));
+            nameTagDisplay.showFor(viewer, false);
         }, null, 2);
     }
 }

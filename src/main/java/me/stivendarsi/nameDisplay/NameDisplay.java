@@ -4,9 +4,9 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.EventManager;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import me.stivendarsi.nameDisplay.commands.CommandHandler;
-import me.stivendarsi.nameDisplay.packetlisteners.RidingHandler;
+import me.stivendarsi.nameDisplay.packetlisteners.ShowDisplayHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.RemoveDisplayHandler;
-import me.stivendarsi.nameDisplay.packetlisteners.SpawnDisplayHandler;
+import me.stivendarsi.nameDisplay.packetlisteners.DisplayExistsHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class NameDisplay extends JavaPlugin {
@@ -34,9 +34,9 @@ public final class NameDisplay extends JavaPlugin {
 
         PacketEvents.getAPI().load();
         EventManager events = PacketEvents.getAPI().getEventManager();
-        events.registerListener(new SpawnDisplayHandler(), PacketListenerPriority.NORMAL);
+        events.registerListener(new DisplayExistsHandler(), PacketListenerPriority.NORMAL);
         events.registerListener(new RemoveDisplayHandler(), PacketListenerPriority.NORMAL);
-        events.registerListener(new RidingHandler(), PacketListenerPriority.NORMAL);
+        events.registerListener(new ShowDisplayHandler(), PacketListenerPriority.NORMAL);
 
         CommandHandler.registerCommands(this.getLifecycleManager());
     }

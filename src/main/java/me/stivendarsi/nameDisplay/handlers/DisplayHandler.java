@@ -1,6 +1,7 @@
 package me.stivendarsi.nameDisplay.handlers;
 
 import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,7 +21,16 @@ public class DisplayHandler {
     }
 
     public void unRegisterDisplay(UUID playerUUID) {
+        NameTagDisplay nameTagDisplay = getPlayerNameTagDisplay(playerUUID);
+        if (nameTagDisplay != null) nameTagDisplay.hideForViewers();
         this.playerNameDisplays.remove(playerUUID);
+    }
+
+    public void unRegisterDisplays() {
+        for (NameTagDisplay value : this.playerNameDisplays.values()) {
+            value.hideForViewers();
+        }
+        this.playerNameDisplays.clear();
     }
 
     public Map<UUID, UUID> getUUID(){

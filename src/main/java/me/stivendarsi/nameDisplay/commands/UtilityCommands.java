@@ -10,6 +10,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -20,6 +21,8 @@ import static me.stivendarsi.nameDisplay.NameDisplay.plugin;
 
 public class UtilityCommands {
     public static int reloadCommand(CommandContext<CommandSourceStack> context) {
+
+        mainHandler().displayHandler().unRegisterDisplays();
         plugin().reloadConfig();
         mainHandler().load();
         context.getSource().getSender().sendRichMessage("<#aeff00>נטען מחדש!");
@@ -36,7 +39,7 @@ public class UtilityCommands {
     }
 
 
-    public static int debug(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    public static int debug(CommandContext<CommandSourceStack> context) {
         Map<UUID, UUID> map = mainHandler().displayHandler().getUUID();
         map.forEach((uuid, uuid2) -> {
             TagResolver resolver = TagResolver.builder()

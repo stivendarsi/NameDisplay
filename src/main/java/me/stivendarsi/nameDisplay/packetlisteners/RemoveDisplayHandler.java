@@ -2,16 +2,12 @@ package me.stivendarsi.nameDisplay.packetlisteners;
 
 import com.github.retrooper.packetevents.event.PacketListener;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
-import com.github.retrooper.packetevents.event.UserDisconnectEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-
-import java.util.UUID;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 
@@ -31,12 +27,5 @@ public class RemoveDisplayHandler implements PacketListener {
         }
     }
 
-    @Override
-    public void onUserDisconnect(UserDisconnectEvent event) {
-        UUID uuid = event.getUser().getUUID();
-        NameTagDisplay nameTagDisplay = mainHandler().displayHandler().getPlayerNameTagDisplay(uuid);
-        if (nameTagDisplay == null) return;
-        nameTagDisplay.disableTextUpdate();
-        mainHandler().displayHandler().unRegisterDisplay(uuid);
-    }
+
 }
