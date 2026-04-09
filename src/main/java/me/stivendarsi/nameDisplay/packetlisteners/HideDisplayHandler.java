@@ -16,6 +16,7 @@ public class HideDisplayHandler implements PacketListener {
     @Override
     public void onPacketSend(PacketSendEvent event) {
         if (event.getPacketType() != PacketType.Play.Server.DESTROY_ENTITIES) return;
+        if (event.isCancelled()) return;
         Player viewer = event.getPlayer();
         WrapperPlayServerDestroyEntities destroyEntities = new WrapperPlayServerDestroyEntities(event);
         for (int entityId : destroyEntities.getEntityIds()) {

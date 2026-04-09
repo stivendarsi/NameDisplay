@@ -19,22 +19,23 @@ public class ShowDisplayHandler implements PacketListener {
         if (event.getPacketType() != PacketType.Play.Server.SPAWN_ENTITY) {
             return;
         }
+        if (event.isCancelled()) return;
 
         WrapperPlayServerSpawnEntity serverSpawnEntity = new WrapperPlayServerSpawnEntity(event);
         Player viewer = event.getPlayer();
         Entity entity = SpigotConversionUtil.getEntityById(viewer.getWorld(), serverSpawnEntity.getEntityId());
         if (serverSpawnEntity.getEntityType() != EntityTypes.PLAYER) return;
         if (!(entity instanceof Player owner)) {
-            System.out.println("That one is not a player");
+          //  System.out.println("That one is not a player");
             return;
         }
         NameTagDisplay nameTagDisplay = mainHandler().displayHandler().getPlayerNameTagDisplay(owner.getUniqueId());
         if (nameTagDisplay == null) {
-            System.out.println("Null tag display of: " + owner.getName());
+          //  System.out.println("Null tag display of: " + owner.getName());
             return;
         }
-        System.out.println("viewer: " + viewer.getName());
-        System.out.println("owner: " +  owner.getName());
+    //    System.out.println("viewer: " + viewer.getName());
+     //   System.out.println("owner: " +  owner.getName());
 
         viewer.getScheduler().runDelayed(plugin(), task -> {
             nameTagDisplay.showFor(viewer, false);

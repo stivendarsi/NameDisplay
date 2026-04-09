@@ -6,16 +6,18 @@ import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.protocol.world.Location;
-import com.github.retrooper.packetevents.util.Vector3f;
+import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetPassengers;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
 import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
+import me.stivendarsi.nameDisplay.handlers.ConfigurationHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -29,11 +31,11 @@ public class NameTagDisplay {
     private final UUID ownerUUID;
     private boolean textUpdating;
     private final List<UUID> viewers;
+    private boolean isSneaking;
 
     private final WrapperPlayServerSpawnEntity serverSpawnEntity;
     private final WrapperPlayServerSetPassengers serverSetPassengers;
     private final WrapperPlayServerDestroyEntities removePacket;
-    private final WrapperPlayServerEntityMetadata defaultMetaData;
 
     public NameTagDisplay(UUID ownerUUID) {
         this.viewers = new ArrayList<>();
@@ -51,36 +53,63 @@ public class NameTagDisplay {
         this.serverSetPassengers = new WrapperPlayServerSetPassengers(owner.getEntityId(), new int[]{this.entityID});
 
         this.removePacket = new WrapperPlayServerDestroyEntities(this.entityID);
-        this.defaultMetaData = getDisplayDefaultMetaDataPacket();
-
     }
 
-    public void showFor(Player player, boolean visibleToTheOwner) {
+    public void sneak() {
+        this.isSneaking = true;
+        sendPacketsToViewers(getModePacket());
+    }
+
+    public void unSneak() {
+        this.isSneaking = false;
+        sendPacketsToViewers(getModePacket());
+    }
+
+    private WrapperPlayServerEntityMetadata getModePacket() {
+        ConfigurationHandler config = mainHandler().configurationHandler();
+
+        if (config.sneakEnabled() && this.isSneaking) return getDisplayMeta(config.sneakProperties());
+        else return getDisplayMeta(config.properties());
+    }
+
+    private void sendPacketsToViewers(PacketWrapper<?> packet) {
+        for (UUID viewerUUID : this.viewers) {
+            Player viewer = Bukkit.getPlayer(viewerUUID);
+            if (viewer == null) continue;
+            User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
+            user.sendPacket(packet);
+        }
+    }
+
+    public void showFor(Player viewer, boolean visibleToTheOwner) {
         Player owner = Bukkit.getPlayer(this.ownerUUID);
         if (owner == null) return;
 
-        User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
+        User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
 
         user.sendPacket(this.serverSpawnEntity); // Spawn the display.
-        if (visibleToTheOwner)
-            player.sendRichMessage("<yellow>Debug <gray>|</gray> Self Visible</yellow> - %s's display was shown to you".formatted(owner.getName()));
-        else player.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> %s's display was shown to you".formatted(owner.getName()));
+
+        if (mainHandler().configurationHandler().debug()) {
+            TagResolver.Single namePlaceHolder = Placeholder.parsed("name", "<#ffbdec>" + owner.getName() + "</#ffbdec>");
+            if (visibleToTheOwner)
+                viewer.sendRichMessage("<yellow>Debug <gray>|</gray> Self Visible</yellow><#7dffe5> - <name>'s display was shown to you", namePlaceHolder);
+            else
+                viewer.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> <name>'s display was shown to you", namePlaceHolder);
+        }
         user.sendPacket(this.serverSetPassengers); // Set display as a passenger of the player.
-        user.sendPacket(this.defaultMetaData); // Send default display properties.
+        user.sendPacket(getModePacket()); // Send default display properties.
         user.sendPacket(getUpdatedTextPacket());
 
-        this.viewers.add(player.getUniqueId());
+        this.viewers.add(viewer.getUniqueId());
     }
 
     public void disableAndHideForViewers() {
         stopTextUpdate();
-        System.out.println(this.viewers);
         List<UUID> uuids = List.copyOf(this.viewers);
         for (UUID viewer : uuids) {
             Player player = Bukkit.getPlayer(viewer);
             if (player != null) hideFor(player);
         }
-        System.out.println(this.viewers);
     }
 
     public void hideFor(Player player) {
@@ -90,7 +119,8 @@ public class NameTagDisplay {
         User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
         user.sendPacket(this.removePacket);
 
-        owner.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> Hiding your display for %s".formatted(player.getName()));
+        if (mainHandler().configurationHandler().debug())
+            owner.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> Hiding your display for %s".formatted(player.getName()));
         this.viewers.remove(player.getUniqueId());
     }
 
@@ -123,37 +153,60 @@ public class NameTagDisplay {
     private void updateTextForAll() {
         WrapperPlayServerEntityMetadata updatedTextPacket = getUpdatedTextPacket();
 
-        for (UUID viewerUUID : this.viewers) {
-            Player viewer = Bukkit.getPlayer(viewerUUID);
-            if (viewer == null) return;
-
-            User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
-            user.sendPacket(updatedTextPacket); // Send default display properties.
-        }
+        sendPacketsToViewers(updatedTextPacket); // Send default display properties.
     }
 
-    private WrapperPlayServerEntityMetadata getDisplayDefaultMetaDataPacket() {
+    private WrapperPlayServerEntityMetadata getDisplayMeta(DisplayProperties displayProperties){
         List<EntityData<?>> metadata = new ArrayList<>();
-        EntityData<?> billboard = new EntityData<>(15, EntityDataTypes.BYTE, (byte) 3); // Display.Billboard.CENTER
+        EntityData<?> billboard = new EntityData<>(15, EntityDataTypes.BYTE, displayProperties.billboard()); // Display.Billboard.CENTER
         metadata.add(billboard);
 
-        EntityData<?> translation = new EntityData<>(11, EntityDataTypes.VECTOR3F, new Vector3f(0f, 0.25f, 0f)); // Translate the display 0.25 above the player
+        EntityData<?> translation = new EntityData<>(11, EntityDataTypes.VECTOR3F, displayProperties.translation()); // Translate the display 0.25 above the player
         metadata.add(translation);
+
+        EntityData<?> textOpacityData = new EntityData<>(26, EntityDataTypes.BYTE, displayProperties.textOpacity());
+        metadata.add(textOpacityData);
+
+        EntityData<?> backgroundOpacityData = new EntityData<>(25, EntityDataTypes.INT, displayProperties.backgroundOpacity()); // Display.Billboard.CENTER
+        metadata.add(backgroundOpacityData);
 
         return new WrapperPlayServerEntityMetadata(this.entityID, metadata);
     }
+
+//    private WrapperPlayServerEntityMetadata getDisplayDefaultMetaDataPacket() {
+//        List<EntityData<?>> metadata = new ArrayList<>();
+//        EntityData<?> billboard = new EntityData<>(15, EntityDataTypes.BYTE, (byte) 3); // Display.Billboard.CENTER
+//        metadata.add(billboard);
+//
+//        EntityData<?> translation = new EntityData<>(11, EntityDataTypes.VECTOR3F, new Vector3f(0f, 0.25f, 0f)); // Translate the display 0.25 above the player
+//        metadata.add(translation);
+//
+//        return new WrapperPlayServerEntityMetadata(this.entityID, metadata);
+//    }
 
     public WrapperPlayServerEntityMetadata getUpdatedTextPacket() {
         Player owner = Bukkit.getPlayer(ownerUUID);
         List<EntityData<?>> metadata = new ArrayList<>();
 
-        Component text =  MiniMessage.miniMessage().deserialize(mainHandler().configurationHandler().getWithSetPlaceholders(owner));
+        Component text = MiniMessage.miniMessage().deserialize(mainHandler().configurationHandler().getWithSetPlaceholders(owner));
 
         EntityData<?> textData = new EntityData<>(23, EntityDataTypes.ADV_COMPONENT, text);
 
         metadata.add(textData);
         return new WrapperPlayServerEntityMetadata(this.entityID, metadata);
     }
+
+
+//    private WrapperPlayServerEntityMetadata getSneakOpacitiesPacket(byte textOpacity, int backgroundOpacity) {
+//        List<EntityData<?>> metadata = new ArrayList<>();
+//        EntityData<?> textOpacityData = new EntityData<>(26, EntityDataTypes.BYTE, textOpacity);
+//        metadata.add(textOpacityData);
+//
+//        EntityData<?> backgroundOpacityData = new EntityData<>(25, EntityDataTypes.INT, Color.fromARGB(backgroundOpacity, 0, 0, 0).asARGB()); // Display.Billboard.CENTER
+//        metadata.add(backgroundOpacityData);
+//
+//        return new WrapperPlayServerEntityMetadata(this.entityID, metadata);
+//    }
 
     public int entityID() {
         return entityID;

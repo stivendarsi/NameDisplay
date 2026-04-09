@@ -1,7 +1,6 @@
 package me.stivendarsi.nameDisplay.handlers;
 
 import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,16 +8,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
-
 public class DisplayHandler {
     Map<UUID, NameTagDisplay> playerNameDisplays; // Player UUID, display
 
     public void load() {
         this.playerNameDisplays = new HashMap<>();
     }
-
-
 
     public void registerDisplay(UUID playerUUID, NameTagDisplay display) {
         this.playerNameDisplays.put(playerUUID, display);

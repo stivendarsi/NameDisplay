@@ -3,7 +3,6 @@ package me.stivendarsi.nameDisplay;
 import me.stivendarsi.nameDisplay.handlers.ConfigurationHandler;
 import me.stivendarsi.nameDisplay.handlers.DisplayHandler;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 public class MainHandler {
     private final ConfigurationHandler configurationHandler;

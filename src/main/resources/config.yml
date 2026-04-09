@@ -1,5 +1,19 @@
-update-interval: 2.0 #In seconds
-show-for-owners: true
+misc:
+  debug: true
+  show-for-owners: true
+  update-interval: 2.0 #In seconds
+
+properties:
+  background-opacity: 63
+  opacity: 255
+  translation: [0,0.25,0]
+  billboard: 3
+sneak-properties:
+  enabled: true
+  opacity: 100
+  background-opacity: 30
+  translation: [0,0.25,0]
+  billboard: 3
 text:
-  - "Hey my name is: %player_name%"
-  - "I am at -> x: %player_x% y: %player_y% z: %player_z%"
+  - "x: %player_x% y: %player_y% z: %player_z%"
+  - "%player_name%"

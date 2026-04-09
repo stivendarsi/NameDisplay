@@ -17,6 +17,7 @@ public class CommandHandler {
                     .then(Commands.literal("reload").executes(UtilityCommands::reloadCommand))
                     .then(Commands.literal("show-all-displays").then(Commands.argument("player", player()).executes(UtilityCommands::showAllDisplaysCommand)))
                     .then(Commands.literal("debug-current-displays").executes(UtilityCommands::debug))
+                    .then(Commands.literal("camera-as").executes(UtilityCommands::cameraAs))
                     .build(), List.of("dn"));
         });
     }

@@ -7,6 +7,7 @@ import me.stivendarsi.nameDisplay.commands.CommandHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.ShowDisplayHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.HideDisplayHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.DisplayExistenceHandler;
+import me.stivendarsi.nameDisplay.packetlisteners.SneakPacketHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class NameDisplay extends JavaPlugin {
@@ -37,6 +38,9 @@ public final class NameDisplay extends JavaPlugin {
         events.registerListener(new DisplayExistenceHandler(), PacketListenerPriority.NORMAL);
         events.registerListener(new HideDisplayHandler(), PacketListenerPriority.NORMAL);
         events.registerListener(new ShowDisplayHandler(), PacketListenerPriority.NORMAL);
+       // events.registerListener(new SneakPacketHandler(), PacketListenerPriority.NORMAL);
+
+        getServer().getPluginManager().registerEvents(new SneakPacketHandler(), this);
 
         CommandHandler.registerCommands(this.getLifecycleManager());
     }

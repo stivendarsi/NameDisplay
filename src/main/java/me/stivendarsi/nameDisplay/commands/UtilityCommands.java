@@ -1,5 +1,8 @@
 package me.stivendarsi.nameDisplay.commands;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.protocol.player.User;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerCamera;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -30,18 +33,18 @@ public class UtilityCommands {
         context.getSource().getSender().sendRichMessage("<#aeff00>נטען מחדש!");
 
         // Load displays for online players.
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            NameTagDisplay nameTagDisplay = new NameTagDisplay(onlinePlayer.getUniqueId());
-            mainHandler().displayHandler().registerDisplay(onlinePlayer.getUniqueId(), nameTagDisplay);
+        for (Player owner : Bukkit.getOnlinePlayers()) {
+            NameTagDisplay nameTagDisplay = new NameTagDisplay(owner.getUniqueId());
+            mainHandler().displayHandler().registerDisplay(owner.getUniqueId(), nameTagDisplay);
 
             nameTagDisplay.startTextUpdating();
 
             // add viewers
-            for (Player player : onlinePlayer.getTrackedBy()) {
+            for (Player player : owner.getTrackedBy()) {
                 nameTagDisplay.showFor(player, false);
             }
 
-            if (mainHandler().configurationHandler().showForOwners()) nameTagDisplay.showFor(onlinePlayer, true);
+            if (mainHandler().configurationHandler().showForOwners()) nameTagDisplay.showFor(owner, true);
         }
 
         return 1;
@@ -53,6 +56,17 @@ public class UtilityCommands {
 
         mainHandler().displayHandler().showAllExistingDisplays(target);
 
+        return 1;
+    }
+
+    public static int cameraAs(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        final PlayerSelectorArgumentResolver targetResolver = context.getArgument("player", PlayerSelectorArgumentResolver.class);
+        final Player target = targetResolver.resolve(context.getSource()).getFirst();
+
+        if (!(context.getSource().getExecutor() instanceof Player sender)) return 0;
+        User user = PacketEvents.getAPI().getPlayerManager().getUser(sender);
+        WrapperPlayServerCamera cameraPacket = new WrapperPlayServerCamera(target.getEntityId());
+        user.sendPacket(cameraPacket);
         return 1;
     }
 
