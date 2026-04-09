@@ -1,6 +1,5 @@
 package me.stivendarsi.nameDisplay.utility;
 
-import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.util.Vector3f;
 import org.bukkit.Color;
 import org.bukkit.configuration.ConfigurationSection;

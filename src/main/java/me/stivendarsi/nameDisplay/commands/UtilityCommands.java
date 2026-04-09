@@ -9,13 +9,10 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -30,7 +27,7 @@ public class UtilityCommands {
         mainHandler().displayHandler().unRegisterDisplays();
         plugin().reloadConfig();
         mainHandler().load();
-        context.getSource().getSender().sendRichMessage("<#aeff00>נטען מחדש!");
+        context.getSource().getSender().sendRichMessage("<#aeff00>Name Display Reloaded!</#aeff00>");
 
         // Load displays for online players.
         for (Player owner : Bukkit.getOnlinePlayers()) {
@@ -84,19 +81,6 @@ public class UtilityCommands {
             context.getSource().getSender().sendMessage(msg);
         });
 
-        return 1;
-    }
-
-    public static int testComponentCommand(CommandContext<CommandSourceStack> context) {
-        String string = context.getArgument("text", String.class);
-        context.getSource().getSender().sendRichMessage(string);
-
-        return 1;
-    }
-
-    public static int ping(CommandContext<CommandSourceStack> context) {
-        if (!(context.getSource().getExecutor() instanceof Player player)) return 0;
-        player.sendRichMessage("זמן תגובה: %s".formatted(player.getPing()));
         return 1;
     }
 }

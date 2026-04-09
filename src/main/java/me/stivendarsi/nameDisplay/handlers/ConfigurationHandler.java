@@ -3,7 +3,6 @@ package me.stivendarsi.nameDisplay.handlers;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.stivendarsi.nameDisplay.utility.DisplayProperties;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
