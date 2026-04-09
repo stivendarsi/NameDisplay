@@ -11,10 +11,11 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDe
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetPassengers;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
-import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -26,8 +27,8 @@ public class NameTagDisplay {
     private final int entityID;
     private final UUID entityUUID;
     private final UUID ownerUUID;
-    private boolean ticking;
-    private final Set<UUID> viewers;
+    private boolean textUpdating;
+    private final List<UUID> viewers;
 
     private final WrapperPlayServerSpawnEntity serverSpawnEntity;
     private final WrapperPlayServerSetPassengers serverSetPassengers;
@@ -35,16 +36,16 @@ public class NameTagDisplay {
     private final WrapperPlayServerEntityMetadata defaultMetaData;
 
     public NameTagDisplay(UUID ownerUUID) {
-        this.viewers = new HashSet<>();
+        this.viewers = new ArrayList<>();
         this.entityUUID = UUID.randomUUID();
         this.ownerUUID = ownerUUID;
         this.entityID = SpigotReflectionUtil.generateEntityId();
-        this.ticking = false;
+        this.textUpdating = false;
 
         Player owner = Bukkit.getPlayer(this.ownerUUID);
         if (owner == null) throw new RuntimeException("Null owner");
 
-        Location location = new Location(0,0,0,0,0);
+        Location location = new Location(0, 0, 0, 0, 0);
 
         this.serverSpawnEntity = new WrapperPlayServerSpawnEntity(this.entityID, this.entityUUID, EntityTypes.TEXT_DISPLAY, location, location.getYaw(), 0, null);
         this.serverSetPassengers = new WrapperPlayServerSetPassengers(owner.getEntityId(), new int[]{this.entityID});
@@ -54,69 +55,11 @@ public class NameTagDisplay {
 
     }
 
-    public void hideForViewers() {
-        if (this.viewers == null || this.viewers.isEmpty()) return;
-        for (UUID viewer : this.viewers) {
-            Player player = Bukkit.getPlayer(viewer);
-            if (player == null) return;
-            hideFor(player);
-        }
-
-        this.viewers.clear();
-    }
-
-    public void hideFor(Player player) {
-        Player owner = Bukkit.getPlayer(ownerUUID);
-        if (owner == null) return;
-
-
-
-        User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
-        user.sendPacket(this.removePacket);
-
-        owner.sendRichMessage("Hiding your display for %s".formatted(player.getName()));
-        this.viewers.remove(player.getUniqueId());
-    }
-
-    public void disableTextUpdate() {
-        this.ticking = false;
-    }
-
-
-    public void startIfNeed() {
-        if (!this.ticking) startTheUpdateAtFixedRate();
-    }
-
-    private void startTheUpdateAtFixedRate() {
-        Player owner = Bukkit.getPlayer(ownerUUID);
-        if (owner == null) return;
-
-        long interval = mainHandler().configurationHandler().updateIntervalInTicks();
-
-        // If interval is enabled, update at fixed rate.
-        if (0 < interval) {
-            this.ticking = true;
-            owner.getScheduler().runAtFixedRate(plugin(), task -> {
-                if (ticking) updateTextForAll();
-                else task.cancel();
-            }, null, 1, interval);
-        } else {
-            //   updateTextForAll();
-            this.ticking = false;
-        }
-    }
-
-
     public void showFor(Player player, boolean visibleToTheOwner) {
         Player owner = Bukkit.getPlayer(this.ownerUUID);
         if (owner == null) return;
 
         User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
-        // Location location = SpigotConversionUtil.fromBukkitLocation(owner.getLocation());
-     //   Location location = new Location(0, 0, 0, 0, 0);
-
-        //  WrapperPlayServerSpawnEntity serverSpawnEntity = new WrapperPlayServerSpawnEntity(this.entityID, this.entityUUID, EntityTypes.TEXT_DISPLAY, location, location.getYaw(), 0, null);
-        //  WrapperPlayServerSetPassengers serverSetPassengers = new WrapperPlayServerSetPassengers(owner.getEntityId(), new int[]{this.entityID});
 
         user.sendPacket(this.serverSpawnEntity); // Spawn the display.
         if (visibleToTheOwner)
@@ -129,22 +72,72 @@ public class NameTagDisplay {
         this.viewers.add(player.getUniqueId());
     }
 
+    public void disableAndHideForViewers() {
+        stopTextUpdate();
+        System.out.println(this.viewers);
+        List<UUID> uuids = List.copyOf(this.viewers);
+        for (UUID viewer : uuids) {
+            Player player = Bukkit.getPlayer(viewer);
+            if (player != null) hideFor(player);
+        }
+        System.out.println(this.viewers);
+    }
+
+    public void hideFor(Player player) {
+        Player owner = Bukkit.getPlayer(ownerUUID);
+        if (owner == null) return;
+
+        User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
+        user.sendPacket(this.removePacket);
+
+        owner.sendRichMessage("Hiding your display for %s".formatted(player.getName()));
+        this.viewers.remove(player.getUniqueId());
+    }
+
+    private void stopTextUpdate() {
+        this.textUpdating = false;
+    }
+
+    public void startTextUpdating() {
+        if (!this.textUpdating) startTextUpdatingTask();
+    }
+
+    private void startTextUpdatingTask() {
+        Player owner = Bukkit.getPlayer(ownerUUID);
+        if (owner == null) return;
+
+        long interval = mainHandler().configurationHandler().updateIntervalInTicks();
+
+        // If interval is enabled, update at fixed rate.
+        if (0 < interval) {
+            this.textUpdating = true;
+            owner.getScheduler().runAtFixedRate(plugin(), task -> {
+                if (textUpdating) updateTextForAll();
+                else task.cancel();
+            }, null, 1, interval);
+        } else {
+            stopTextUpdate();
+        }
+    }
+
     private void updateTextForAll() {
         WrapperPlayServerEntityMetadata updatedTextPacket = getUpdatedTextPacket();
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            Player player = onlinePlayer.getPlayer();
-            if (player == null) return;
-            User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
+
+        for (UUID viewerUUID : this.viewers) {
+            Player viewer = Bukkit.getPlayer(viewerUUID);
+            if (viewer == null) return;
+
+            User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
             user.sendPacket(updatedTextPacket); // Send default display properties.
         }
     }
 
     private WrapperPlayServerEntityMetadata getDisplayDefaultMetaDataPacket() {
         List<EntityData<?>> metadata = new ArrayList<>();
-        EntityData<?> billboard = new EntityData<>(15, EntityDataTypes.BYTE, (byte) 3);
+        EntityData<?> billboard = new EntityData<>(15, EntityDataTypes.BYTE, (byte) 3); // Display.Billboard.CENTER
         metadata.add(billboard);
 
-        EntityData<?> translation = new EntityData<>(11, EntityDataTypes.VECTOR3F, new Vector3f(0f, 0.25f, 0f));
+        EntityData<?> translation = new EntityData<>(11, EntityDataTypes.VECTOR3F, new Vector3f(0f, 0.25f, 0f)); // Translate the display 0.25 above the player
         metadata.add(translation);
 
         return new WrapperPlayServerEntityMetadata(this.entityID, metadata);
@@ -154,7 +147,9 @@ public class NameTagDisplay {
         Player owner = Bukkit.getPlayer(ownerUUID);
         List<EntityData<?>> metadata = new ArrayList<>();
 
-        EntityData<?> textData = new EntityData<>(23, EntityDataTypes.ADV_COMPONENT, MiniMessage.miniMessage().deserialize(mainHandler().configurationHandler().getWithSetPlaceholders(owner)));
+        Component text =  MiniMessage.miniMessage().deserialize(mainHandler().configurationHandler().getWithSetPlaceholders(owner));
+
+        EntityData<?> textData = new EntityData<>(23, EntityDataTypes.ADV_COMPONENT, text);
 
         metadata.add(textData);
         return new WrapperPlayServerEntityMetadata(this.entityID, metadata);

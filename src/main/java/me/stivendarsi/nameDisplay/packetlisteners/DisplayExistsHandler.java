@@ -1,12 +1,9 @@
 package me.stivendarsi.nameDisplay.packetlisteners;
 
 import com.github.retrooper.packetevents.event.PacketListener;
-import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.event.UserDisconnectEvent;
 import com.github.retrooper.packetevents.event.UserLoginEvent;
-import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
-import net.kyori.adventure.audience.Audience;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -37,7 +34,7 @@ public class DisplayExistsHandler implements PacketListener {
             nameTagDisplay = new NameTagDisplay(owner.getUniqueId());
             mainHandler().displayHandler().registerDisplay(owner.getUniqueId(), nameTagDisplay);
         }
-        nameTagDisplay.startIfNeed();
+        nameTagDisplay.startTextUpdating();
         if (mainHandler().configurationHandler().showForOwners()) nameTagDisplay.showFor(event.getPlayer(), true);
     }
 
@@ -46,7 +43,7 @@ public class DisplayExistsHandler implements PacketListener {
         UUID uuid = event.getUser().getUUID();
         NameTagDisplay nameTagDisplay = mainHandler().displayHandler().getPlayerNameTagDisplay(uuid);
         if (nameTagDisplay == null) return;
-        nameTagDisplay.disableTextUpdate();
+      //  nameTagDisplay.disableTextUpdate();
         mainHandler().displayHandler().unRegisterDisplay(uuid);
     }
 }
