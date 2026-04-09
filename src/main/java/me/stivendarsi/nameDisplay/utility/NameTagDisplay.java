@@ -11,6 +11,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDe
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetPassengers;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
+import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
 import me.stivendarsi.nameDisplay.handlers.ConfigurationHandler;
 import net.kyori.adventure.text.Component;
@@ -33,7 +34,6 @@ public class NameTagDisplay {
     private final List<UUID> viewers;
     private boolean isSneaking;
 
-    private final WrapperPlayServerSpawnEntity serverSpawnEntity;
     private final WrapperPlayServerSetPassengers serverSetPassengers;
     private final WrapperPlayServerDestroyEntities removePacket;
 
@@ -49,9 +49,7 @@ public class NameTagDisplay {
 
         Location location = new Location(0, 0, 0, 0, 0);
 
-        this.serverSpawnEntity = new WrapperPlayServerSpawnEntity(this.entityID, this.entityUUID, EntityTypes.TEXT_DISPLAY, location, location.getYaw(), 0, null);
         this.serverSetPassengers = new WrapperPlayServerSetPassengers(owner.getEntityId(), new int[]{this.entityID});
-
         this.removePacket = new WrapperPlayServerDestroyEntities(this.entityID);
     }
 
@@ -87,7 +85,13 @@ public class NameTagDisplay {
 
         User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
 
-        user.sendPacket(this.serverSpawnEntity); // Spawn the display.
+        WrapperPlayServerSpawnEntity serverSpawnEntity = new WrapperPlayServerSpawnEntity(this.entityID,
+                this.entityUUID,
+                EntityTypes.TEXT_DISPLAY,
+                SpigotConversionUtil.fromBukkitLocation(owner.getLocation()),
+                0,0,null
+        );
+        user.sendPacket(serverSpawnEntity); // Spawn the display.
 
         if (mainHandler().configurationHandler().debug()) {
             TagResolver.Single namePlaceHolder = Placeholder.parsed("name", "<#ffbdec>" + owner.getName() + "</#ffbdec>");
