@@ -16,8 +16,8 @@ public class MainHandler {
     }
 
     public void load() {
-        this.displayHandler.load();
         this.configurationHandler.load();
+        this.displayHandler.load();
     }
 
     /**Getters*/

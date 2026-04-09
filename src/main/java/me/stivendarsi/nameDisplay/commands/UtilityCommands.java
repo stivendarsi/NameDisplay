@@ -4,6 +4,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -27,6 +28,22 @@ public class UtilityCommands {
         plugin().reloadConfig();
         mainHandler().load();
         context.getSource().getSender().sendRichMessage("<#aeff00>נטען מחדש!");
+
+        // Load displays for online players.
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            NameTagDisplay nameTagDisplay = new NameTagDisplay(onlinePlayer.getUniqueId());
+            mainHandler().displayHandler().registerDisplay(onlinePlayer.getUniqueId(), nameTagDisplay);
+
+            nameTagDisplay.startTextUpdating();
+
+            // add viewers
+            for (Player player : onlinePlayer.getTrackedBy()) {
+                nameTagDisplay.showFor(player, false);
+            }
+
+            if (mainHandler().configurationHandler().showForOwners()) nameTagDisplay.showFor(onlinePlayer, true);
+        }
+
         return 1;
     }
 

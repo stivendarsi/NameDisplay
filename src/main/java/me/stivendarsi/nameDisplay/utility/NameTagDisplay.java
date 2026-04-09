@@ -63,8 +63,8 @@ public class NameTagDisplay {
 
         user.sendPacket(this.serverSpawnEntity); // Spawn the display.
         if (visibleToTheOwner)
-            player.sendRichMessage("<yellow>Self Visible</yellow> - %s's display was shown to you".formatted(owner.getName()));
-        else player.sendRichMessage("%s's display was shown to you".formatted(owner.getName()));
+            player.sendRichMessage("<yellow>Debug <gray>|</gray> Self Visible</yellow> - %s's display was shown to you".formatted(owner.getName()));
+        else player.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> %s's display was shown to you".formatted(owner.getName()));
         user.sendPacket(this.serverSetPassengers); // Set display as a passenger of the player.
         user.sendPacket(this.defaultMetaData); // Send default display properties.
         user.sendPacket(getUpdatedTextPacket());
@@ -90,7 +90,7 @@ public class NameTagDisplay {
         User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
         user.sendPacket(this.removePacket);
 
-        owner.sendRichMessage("Hiding your display for %s".formatted(player.getName()));
+        owner.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> Hiding your display for %s".formatted(player.getName()));
         this.viewers.remove(player.getUniqueId());
     }
 
