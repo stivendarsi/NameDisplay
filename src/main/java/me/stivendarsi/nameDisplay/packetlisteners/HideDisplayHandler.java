@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 
-public class RemoveDisplayHandler implements PacketListener {
+public class HideDisplayHandler implements PacketListener {
 
     @Override
     public void onPacketSend(PacketSendEvent event) {
@@ -26,6 +26,4 @@ public class RemoveDisplayHandler implements PacketListener {
             nameTagDisplay.hideFor(viewer);
         }
     }
-
-
 }

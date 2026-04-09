@@ -40,5 +40,4 @@ public class ShowDisplayHandler implements PacketListener {
             nameTagDisplay.showFor(viewer, false);
         }, null, 2);
     }
-
 }

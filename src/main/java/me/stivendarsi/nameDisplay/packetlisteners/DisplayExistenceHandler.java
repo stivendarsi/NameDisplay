@@ -10,20 +10,7 @@ import java.util.UUID;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 
-public class DisplayExistsHandler implements PacketListener {
-//    @Override
-//    public void onPacketReceive(PacketReceiveEvent event) {
-//        if (event.getPacketType() != PacketType.Play.Client.PLAYER_LOADED) return;
-//        Player owner = event.getPlayer();
-//
-//        NameTagDisplay nameTagDisplay = mainHandler().displayHandler().getPlayerNameTagDisplay(owner.getUniqueId());
-//        if (nameTagDisplay == null) {
-//            nameTagDisplay = new NameTagDisplay(owner.getUniqueId());
-//            mainHandler().displayHandler().registerDisplay(owner.getUniqueId(), nameTagDisplay);
-//        }
-//        nameTagDisplay.startIfNeed();
-//        if (mainHandler().configurationHandler().showForOwners()) nameTagDisplay.showFor(event.getPlayer(), true);
-//    }
+public class DisplayExistenceHandler implements PacketListener {
 
     @Override
     public void onUserLogin(UserLoginEvent event) {
@@ -43,7 +30,6 @@ public class DisplayExistsHandler implements PacketListener {
         UUID uuid = event.getUser().getUUID();
         NameTagDisplay nameTagDisplay = mainHandler().displayHandler().getPlayerNameTagDisplay(uuid);
         if (nameTagDisplay == null) return;
-      //  nameTagDisplay.disableTextUpdate();
         mainHandler().displayHandler().unRegisterDisplay(uuid);
     }
 }
