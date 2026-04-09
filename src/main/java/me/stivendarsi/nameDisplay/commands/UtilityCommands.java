@@ -11,6 +11,7 @@ import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -41,11 +42,12 @@ public class UtilityCommands {
 
     public static int debug(CommandContext<CommandSourceStack> context) {
         Map<UUID, UUID> map = mainHandler().displayHandler().getUUID();
-        map.forEach((uuid, uuid2) -> {
+        map.forEach((uuid1, uuid2) -> {
+
             TagResolver resolver = TagResolver.builder()
-                    .tag("uuid1", Tag.preProcessParsed(String.valueOf(uuid)))
+                    .tag("uuid1", Tag.preProcessParsed(String.valueOf(uuid1)))
                     .tag("uuid2", Tag.preProcessParsed(String.valueOf(uuid2)))
-                    .tag("equal", Tag.preProcessParsed(String.valueOf(uuid == uuid2)))
+                    .tag("equal", Tag.preProcessParsed(String.valueOf(uuid1 == uuid2)))
                     .build();
             Component msg = MiniMessage.miniMessage().deserialize("<uuid1>, <uuid2> | <equal>", resolver);
             context.getSource().getSender().sendMessage(msg);
