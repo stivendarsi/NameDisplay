@@ -38,10 +38,9 @@ public class UtilityCommands {
 
             // add viewers
             for (Player player : owner.getTrackedBy()) {
-                nameTagDisplay.showFor(player, false);
+                nameTagDisplay.showFor(player, mainHandler().configurationHandler().showForOwners());
             }
-
-            if (mainHandler().configurationHandler().showForOwners()) nameTagDisplay.showFor(owner, true);
+            nameTagDisplay.showFor(owner, mainHandler().configurationHandler().showForOwners());
         }
 
         return 1;

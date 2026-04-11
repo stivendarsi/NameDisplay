@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
+
 public class DisplayHandler {
     Map<UUID, NameTagDisplay> playerNameDisplays; // Player UUID, display
 
@@ -49,7 +51,7 @@ public class DisplayHandler {
 
     public void showAllExistingDisplays(Player playerToShow){
         for (NameTagDisplay nameTagDisplay : this.playerNameDisplays.values()) {
-                nameTagDisplay.showFor(playerToShow, false);
+                nameTagDisplay.showFor(playerToShow, mainHandler().configurationHandler().showForOwners());
         }
     }
 }

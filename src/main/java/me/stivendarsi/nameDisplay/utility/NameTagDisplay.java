@@ -47,8 +47,6 @@ public class NameTagDisplay {
         Player owner = Bukkit.getPlayer(this.ownerUUID);
         if (owner == null) throw new RuntimeException("Null owner");
 
-        Location location = new Location(0, 0, 0, 0, 0);
-
         this.serverSetPassengers = new WrapperPlayServerSetPassengers(owner.getEntityId(), new int[]{this.entityID});
         this.removePacket = new WrapperPlayServerDestroyEntities(this.entityID);
     }
@@ -80,6 +78,7 @@ public class NameTagDisplay {
     }
 
     public void showFor(Player viewer, boolean visibleToTheOwner) {
+        if (!visibleToTheOwner && viewer.getUniqueId().equals(this.ownerUUID)) return;
         Player owner = Bukkit.getPlayer(this.ownerUUID);
         if (owner == null) return;
 

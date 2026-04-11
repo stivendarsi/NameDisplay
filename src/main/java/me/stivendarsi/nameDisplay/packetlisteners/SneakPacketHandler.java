@@ -4,6 +4,7 @@ import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
@@ -19,5 +20,14 @@ public class SneakPacketHandler implements Listener {
 
         if (event.isSneaking()) nameTagDisplay.sneak();
         else nameTagDisplay.unSneak();
+    }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event){
+        Player owner = event.getPlayer();
+        NameTagDisplay nameTagDisplay = mainHandler().displayHandler().getPlayerNameTagDisplay(owner.getUniqueId());
+        if (nameTagDisplay == null) return;
+
+        nameTagDisplay.showFor(owner, mainHandler().configurationHandler().showForOwners());
     }
 }

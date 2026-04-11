@@ -22,7 +22,7 @@ public class DisplayExistenceHandler implements PacketListener {
             mainHandler().displayHandler().registerDisplay(owner.getUniqueId(), nameTagDisplay);
         }
         nameTagDisplay.startTextUpdating();
-        if (mainHandler().configurationHandler().showForOwners()) nameTagDisplay.showFor(event.getPlayer(), true);
+        nameTagDisplay.showFor(event.getPlayer(), mainHandler().configurationHandler().showForOwners());
     }
 
     @Override
