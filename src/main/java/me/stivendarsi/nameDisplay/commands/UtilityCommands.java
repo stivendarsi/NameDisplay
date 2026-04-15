@@ -6,6 +6,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerCa
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
 import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
 import net.kyori.adventure.text.Component;
@@ -13,6 +14,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
@@ -56,12 +58,12 @@ public class UtilityCommands {
     }
 
     public static int cameraAs(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        final PlayerSelectorArgumentResolver targetResolver = context.getArgument("player", PlayerSelectorArgumentResolver.class);
-        final Player target = targetResolver.resolve(context.getSource()).getFirst();
+        final EntitySelectorArgumentResolver entitySelectorArgumentResolver = context.getArgument("target", EntitySelectorArgumentResolver.class);
+        final Entity entity = entitySelectorArgumentResolver.resolve(context.getSource()).getFirst();
 
         if (!(context.getSource().getExecutor() instanceof Player sender)) return 0;
         User user = PacketEvents.getAPI().getPlayerManager().getUser(sender);
-        WrapperPlayServerCamera cameraPacket = new WrapperPlayServerCamera(target.getEntityId());
+        WrapperPlayServerCamera cameraPacket = new WrapperPlayServerCamera(entity.getEntityId());
         user.sendPacket(cameraPacket);
         return 1;
     }
@@ -82,4 +84,8 @@ public class UtilityCommands {
 
         return 1;
     }
+
+
+
+
 }
