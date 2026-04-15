@@ -5,6 +5,7 @@ import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.inventory.ItemType;
 import org.joml.Matrix4f;
@@ -17,7 +18,9 @@ import static me.stivendarsi.nameDisplay.NameDisplay.plugin;
 public class ShakedDisplay {
     private final UUID displayUUID;
     private ScheduledTask scheduledTask;
-    private final Matrix4f translate = new Matrix4f();
+    private final Matrix4f translate = new Matrix4f().translate(0,-0.5f,0);
+
+    private final UUID interactionUUID;
 
     public ShakedDisplay(Location location) {
         location.setPitch(0);
@@ -28,6 +31,11 @@ public class ShakedDisplay {
         this.displayUUID = itemDisplay.getUniqueId();
         itemDisplay.setItemStack(ItemType.EMERALD.createItemStack());
         itemDisplay.setTransformationMatrix(this.translate);
+
+        Interaction interaction = (Interaction) location.getWorld().spawnEntity(location, EntityType.INTERACTION);
+        this.interactionUUID = interaction.getUniqueId();
+
+        interaction.addPassenger(itemDisplay);
     }
 
     public void stop(){
@@ -61,5 +69,13 @@ public class ShakedDisplay {
 
         }, null, 1, durationTick);
 
+    }
+
+    public UUID interactionUUID() {
+        return interactionUUID;
+    }
+
+    public UUID displayUUID() {
+        return displayUUID;
     }
 }
