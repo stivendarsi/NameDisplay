@@ -18,7 +18,7 @@ import static me.stivendarsi.nameDisplay.NameDisplay.plugin;
 public class ShakedDisplay {
     private final UUID displayUUID;
     private ScheduledTask scheduledTask;
-    private final Matrix4f translate = new Matrix4f().translate(0,-0.5f,0);
+    private final Matrix4f translate = new Matrix4f().translate(0,0.5f,0);
 
     private final UUID interactionUUID;
 
@@ -31,11 +31,13 @@ public class ShakedDisplay {
         this.displayUUID = itemDisplay.getUniqueId();
         itemDisplay.setItemStack(ItemType.EMERALD.createItemStack());
         itemDisplay.setTransformationMatrix(this.translate);
+        itemDisplay.setPersistent(false);
 
         Interaction interaction = (Interaction) location.getWorld().spawnEntity(location, EntityType.INTERACTION);
         this.interactionUUID = interaction.getUniqueId();
 
         interaction.addPassenger(itemDisplay);
+        interaction.setPersistent(false);
     }
 
     public void stop(){
