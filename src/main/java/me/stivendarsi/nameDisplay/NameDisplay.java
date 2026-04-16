@@ -9,6 +9,7 @@ import me.stivendarsi.nameDisplay.packetlisteners.HideDisplayHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.DisplayExistenceHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.SneakPacketHandler;
 import me.stivendarsi.nameDisplay.shakeit.HitBoxInteractionEventHandler;
+import me.stivendarsi.nameDisplay.shakeit.ShakeDisplayEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class NameDisplay extends JavaPlugin {
@@ -43,6 +44,7 @@ public final class NameDisplay extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new HitBoxInteractionEventHandler(), this);
         getServer().getPluginManager().registerEvents(new SneakPacketHandler(), this);
+        getServer().getPluginManager().registerEvents(new ShakeDisplayEvent(), this);
 
         CommandHandler.registerCommands(this.getLifecycleManager());
     }

@@ -13,7 +13,6 @@ public class ShakeCommands {
 
         mainHandler().shakeHandler().spawn(player.getLocation());
 
-
         return 1;
     }
 
@@ -24,7 +23,13 @@ public class ShakeCommands {
         double duration = context.getArgument("seconds", Double.class);
         double angle = context.getArgument("angle", Double.class);
 
-        mainHandler().shakeHandler().shakedDisplay().startShake((int) (duration * 20), angle);
+        ShakedDisplay shakedDisplay = mainHandler().shakeHandler().shakedDisplay();
+        if (shakedDisplay == null) return 0;
+
+        shakedDisplay.setOriginalDurationSecond(duration);
+        shakedDisplay.setAngle(angle);
+
+        shakedDisplay.startShake();
 
         return 1;
     }

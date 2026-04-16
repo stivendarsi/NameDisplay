@@ -17,7 +17,6 @@ public class HitBoxInteractionEventHandler implements Listener {
         if (!(event.getRightClicked() instanceof Interaction interaction)) return;
         UUID uuid = interaction.getUniqueId();
         if (!mainHandler().shakeHandler().shakedDisplay().interactionUUID().equals(uuid)) return;
-
         Player player = event.getPlayer();
         player.sendRichMessage("Right Clicked");
     }

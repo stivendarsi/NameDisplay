@@ -21,9 +21,10 @@ repositories {
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:26.1.1.build.+")
+    compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
     compileOnly("com.github.retrooper:packetevents-spigot:2.12.0")
     compileOnly("me.clip:placeholderapi:2.12.2")
+    implementation("net.kyori:adventure-api:5.0.0")
 }
 
 
