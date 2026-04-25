@@ -14,41 +14,40 @@ public class ShakeDisplayEvent implements Listener {
     @EventHandler
     public void advanceShake(PlayerMoveEvent event) {
         Player player = event.getPlayer();
-        ShakedDisplay shakedDisplay = mainHandler().shakeHandler().shakedDisplay();
-        if (shakedDisplay == null) return;
-
-        Interaction mainInter = (Interaction) Bukkit.getEntity(mainHandler().shakeHandler().shakedDisplay().interactionUUID());
-        if (mainInter == null) return;
-
         Entity entity = player.getTargetEntity(10);
+        Interaction interaction = (entity instanceof Interaction) ? (Interaction) entity : null;
 
-        if (entity == null) {
-            if (!shakedDisplay.looking()) return;
-            shakedDisplay.setLooking(false);
-            shakedDisplay.removeViewer(player.getUniqueId());
-            shakedDisplay.setDurationSecond(shakedDisplay.originalDuration());
+        mainHandler().shakeHandler().shakeDisplaySet().forEachDisplay(shakedDisplay -> {
+            if (shakedDisplay == null) return;
+            Interaction mainInter = (Interaction) Bukkit.getEntity(shakedDisplay.interactionUUID());
+            if (mainInter == null) return;
+
+            if (interaction == null) {
+                if (!shakedDisplay.looking()) return;
+                shakedDisplay.setLooking(false);
+                shakedDisplay.removeViewer(player.getUniqueId());
+                shakedDisplay.setDurationSecond(shakedDisplay.originalDuration());
+                shakedDisplay.startShake();
+                player.sendRichMessage("Canceling cause no entity");
+                return;
+            }
+
+
+            if (!interaction.getUniqueId().equals(shakedDisplay.interactionUUID())) {
+                player.sendRichMessage("Canceling not the same UUID");
+                return;
+            }
+            if (shakedDisplay.looking()) return;
+
+            shakedDisplay.setLooking(true);
+            shakedDisplay.addViewer(player.getUniqueId());
+
+
+            player.sendRichMessage("Speeding");
+
+            shakedDisplay.setDurationSecond(0.2);
             shakedDisplay.startShake();
-            player.sendRichMessage("Canceling cause no entity");
-            return;
-        }
-        if (!(entity instanceof Interaction interaction)) {
-            player.sendRichMessage("Canceling cause not interaction");
-            return;
-        }
 
-        if (!interaction.getUniqueId().equals(shakedDisplay.interactionUUID())) {
-            player.sendRichMessage("Canceling not the same UUID");
-            return;
-        }
-        if (shakedDisplay.looking()) return;
-
-        shakedDisplay.setLooking(true);
-        shakedDisplay.addViewer(player.getUniqueId());
-
-
-        player.sendRichMessage("Speeding");
-
-        shakedDisplay.setDurationSecond(0.2);
-        shakedDisplay.startShake();
+        });
     }
 }

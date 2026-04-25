@@ -13,21 +13,32 @@ import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 
 public class HitBoxInteractionEventHandler implements Listener {
     @EventHandler
-    public void onRightClick(PlayerInteractAtEntityEvent event){
+    public void onRightClick(PlayerInteractAtEntityEvent event) {
         if (!(event.getRightClicked() instanceof Interaction interaction)) return;
         UUID uuid = interaction.getUniqueId();
-        if (!mainHandler().shakeHandler().shakedDisplay().interactionUUID().equals(uuid)) return;
-        Player player = event.getPlayer();
-        player.sendRichMessage("Right Clicked");
+        for (ShakedDisplay[] shakedDisplays : mainHandler().shakeHandler().shakeDisplaySet().shakedDisplays()) {
+            for (ShakedDisplay shakedDisplay : shakedDisplays) {
+                if (shakedDisplay == null) continue;
+                if (!shakedDisplay.interactionUUID().equals(uuid)) continue;
+                Player player = event.getPlayer();
+                player.sendRichMessage("Right Clicked");
+                break;
+            }
+        }
     }
 
     @EventHandler
-    public void onLeftClick(PrePlayerAttackEntityEvent event){
+    public void onLeftClick(PrePlayerAttackEntityEvent event) {
         if (!(event.getAttacked() instanceof Interaction interaction)) return;
         UUID uuid = interaction.getUniqueId();
-        if (!mainHandler().shakeHandler().shakedDisplay().interactionUUID().equals(uuid)) return;
-
-        Player player = event.getPlayer();
-        player.sendRichMessage("Left Clicked");
+        for (ShakedDisplay[] shakedDisplays : mainHandler().shakeHandler().shakeDisplaySet().shakedDisplays()) {
+            for (ShakedDisplay shakedDisplay : shakedDisplays) {
+                if (shakedDisplay == null) continue;
+                if (!shakedDisplay.interactionUUID().equals(uuid)) continue;
+                Player player = event.getPlayer();
+                player.sendRichMessage("Left Clicked");
+                break;
+            }
+        }
     }
 }

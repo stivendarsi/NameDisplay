@@ -5,7 +5,6 @@ import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.protocol.player.User;
-import com.github.retrooper.packetevents.protocol.world.Location;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDestroyEntities;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
@@ -21,7 +20,9 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 import static me.stivendarsi.nameDisplay.NameDisplay.plugin;
@@ -87,7 +88,7 @@ public class NameTagDisplay {
         WrapperPlayServerSpawnEntity serverSpawnEntity = new WrapperPlayServerSpawnEntity(this.entityID,
                 this.entityUUID,
                 EntityTypes.TEXT_DISPLAY,
-                SpigotConversionUtil.fromBukkitLocation(owner.getLocation()),
+                SpigotConversionUtil.fromBukkitLocation(owner.getLocation().add(0,2f,0)),
                 0,0,null
         );
         user.sendPacket(serverSpawnEntity); // Spawn the display.
@@ -176,17 +177,6 @@ public class NameTagDisplay {
         return new WrapperPlayServerEntityMetadata(this.entityID, metadata);
     }
 
-//    private WrapperPlayServerEntityMetadata getDisplayDefaultMetaDataPacket() {
-//        List<EntityData<?>> metadata = new ArrayList<>();
-//        EntityData<?> billboard = new EntityData<>(15, EntityDataTypes.BYTE, (byte) 3); // Display.Billboard.CENTER
-//        metadata.add(billboard);
-//
-//        EntityData<?> translation = new EntityData<>(11, EntityDataTypes.VECTOR3F, new Vector3f(0f, 0.25f, 0f)); // Translate the display 0.25 above the player
-//        metadata.add(translation);
-//
-//        return new WrapperPlayServerEntityMetadata(this.entityID, metadata);
-//    }
-
     public WrapperPlayServerEntityMetadata getUpdatedTextPacket() {
         Player owner = Bukkit.getPlayer(ownerUUID);
         List<EntityData<?>> metadata = new ArrayList<>();
@@ -198,18 +188,6 @@ public class NameTagDisplay {
         metadata.add(textData);
         return new WrapperPlayServerEntityMetadata(this.entityID, metadata);
     }
-
-
-//    private WrapperPlayServerEntityMetadata getSneakOpacitiesPacket(byte textOpacity, int backgroundOpacity) {
-//        List<EntityData<?>> metadata = new ArrayList<>();
-//        EntityData<?> textOpacityData = new EntityData<>(26, EntityDataTypes.BYTE, textOpacity);
-//        metadata.add(textOpacityData);
-//
-//        EntityData<?> backgroundOpacityData = new EntityData<>(25, EntityDataTypes.INT, Color.fromARGB(backgroundOpacity, 0, 0, 0).asARGB()); // Display.Billboard.CENTER
-//        metadata.add(backgroundOpacityData);
-//
-//        return new WrapperPlayServerEntityMetadata(this.entityID, metadata);
-//    }
 
     public int entityID() {
         return entityID;

@@ -4,12 +4,10 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.EventManager;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import me.stivendarsi.nameDisplay.commands.CommandHandler;
-import me.stivendarsi.nameDisplay.packetlisteners.ShowDisplayHandler;
-import me.stivendarsi.nameDisplay.packetlisteners.HideDisplayHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.DisplayExistenceHandler;
+import me.stivendarsi.nameDisplay.packetlisteners.HideDisplayHandler;
+import me.stivendarsi.nameDisplay.packetlisteners.ShowDisplayHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.SneakPacketHandler;
-import me.stivendarsi.nameDisplay.shakeit.HitBoxInteractionEventHandler;
-import me.stivendarsi.nameDisplay.shakeit.ShakeDisplayEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class NameDisplay extends JavaPlugin {
@@ -41,10 +39,11 @@ public final class NameDisplay extends JavaPlugin {
         events.registerListener(new HideDisplayHandler(), PacketListenerPriority.NORMAL);
         events.registerListener(new ShowDisplayHandler(), PacketListenerPriority.NORMAL);
        // events.registerListener(new SneakPacketHandler(), PacketListenerPriority.NORMAL);
-
-        getServer().getPluginManager().registerEvents(new HitBoxInteractionEventHandler(), this);
         getServer().getPluginManager().registerEvents(new SneakPacketHandler(), this);
-        getServer().getPluginManager().registerEvents(new ShakeDisplayEvent(), this);
+
+        // Shake display
+       // getServer().getPluginManager().registerEvents(new HitBoxInteractionEventHandler(), this);
+      //  getServer().getPluginManager().registerEvents(new ShakeDisplayEvent(), this);
 
         CommandHandler.registerCommands(this.getLifecycleManager());
     }

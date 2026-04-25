@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
-    compileOnly("com.github.retrooper:packetevents-spigot:2.12.0")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.12.1")
     compileOnly("me.clip:placeholderapi:2.12.2")
     implementation("net.kyori:adventure-api:5.0.0")
 }
@@ -34,13 +34,13 @@ java {
 
 tasks {
     jar {
-        destinationDirectory.set(file("D:/Minecraft/servers/26.1.1/plugins"))
+        destinationDirectory.set(file("D:/Minecraft/servers/26.1.2/plugins"))
     }
     runServer {
         // Configure the Minecraft version for our task.
         // This is the only required configuration besides applying the plugin.
         // Your plugin's jar (or shadowJar if present) will be used automatically.
-        minecraftVersion("26.1.1")
+        minecraftVersion("26.1.2")
         jvmArgs("-Xms2G", "-Xmx2G")
     }
 
