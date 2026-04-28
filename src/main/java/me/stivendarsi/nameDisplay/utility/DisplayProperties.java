@@ -1,10 +1,6 @@
 package me.stivendarsi.nameDisplay.utility;
 
-import com.github.retrooper.packetevents.protocol.player.User;
-import com.github.retrooper.packetevents.protocol.world.attributes.EnvironmentAttributes;
-import com.github.retrooper.packetevents.protocol.world.chunk.LightData;
 import com.github.retrooper.packetevents.util.Vector3f;
-import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerUpdateAttributes;
 import org.bukkit.Color;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -15,13 +11,13 @@ public class DisplayProperties {
     private final byte textOpacity;
     private final Vector3f translation;
     private final byte billboard;
-
+    private final int maxWidth;
 
     public DisplayProperties(ConfigurationSection section) {
+        this.maxWidth = section.getInt("max-width", 200);
         int opacity = section.getInt("opacity", 100);
         this.textOpacity = (byte) (opacity > 127 ? opacity - 256 : opacity);
         this.backgroundOpacity = Color.fromARGB(section.getInt("background-opacity", 63), 0, 0, 0).asARGB();
-
 
         this.billboard = (byte) section.getInt("billboard", 3);
 
@@ -40,6 +36,10 @@ public class DisplayProperties {
 
     public Vector3f translation() {
         return translation;
+    }
+
+    public int maxWidth() {
+        return maxWidth;
     }
 
     public byte billboard() {

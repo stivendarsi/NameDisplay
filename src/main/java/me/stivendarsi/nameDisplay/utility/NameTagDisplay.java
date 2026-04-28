@@ -165,6 +165,9 @@ public class NameTagDisplay {
         EntityData<?> billboard = new EntityData<>(15, EntityDataTypes.BYTE, displayProperties.billboard()); // Display.Billboard.CENTER
         metadata.add(billboard);
 
+        EntityData<?> textWidth = new EntityData<>(24, EntityDataTypes.INT, displayProperties.maxWidth()); // Display.Billboard.CENTER
+        metadata.add(textWidth);
+
         EntityData<?> translation = new EntityData<>(11, EntityDataTypes.VECTOR3F, displayProperties.translation()); // Translate the display 0.25 above the player
         metadata.add(translation);
 
