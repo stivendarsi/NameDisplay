@@ -1,10 +1,10 @@
 package me.stivendarsi.nameDisplay.packetlisteners;
 
+import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
@@ -23,7 +23,7 @@ public class SneakPacketHandler implements Listener {
     }
 
     @EventHandler
-    public void onRespawn(PlayerRespawnEvent event){
+    public void onRespawn(PlayerPostRespawnEvent event){
         Player owner = event.getPlayer();
         NameTagDisplay nameTagDisplay = mainHandler().displayHandler().getPlayerNameTagDisplay(owner.getUniqueId());
         if (nameTagDisplay == null) return;

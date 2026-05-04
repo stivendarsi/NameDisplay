@@ -27,4 +27,5 @@ public class HideDisplayHandler implements PacketListener {
             nameTagDisplay.hideFor(viewer);
         }
     }
+
 }

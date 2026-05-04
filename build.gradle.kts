@@ -22,9 +22,9 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:26.1.2.build.+")
+    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.2.0")
     compileOnly("com.github.retrooper:packetevents-spigot:2.12.1")
     compileOnly("me.clip:placeholderapi:2.12.2")
-    compileOnly("io.github.miniplaceholders:miniplaceholders-api:3.2.0")
 }
 
 
