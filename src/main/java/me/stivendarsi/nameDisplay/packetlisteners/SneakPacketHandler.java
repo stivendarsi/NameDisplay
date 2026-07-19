@@ -1,7 +1,7 @@
 package me.stivendarsi.nameDisplay.packetlisteners;
 
 import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
-import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
+import me.stivendarsi.nameDisplay.utility.TextDisplayEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -15,19 +15,19 @@ public class SneakPacketHandler implements Listener {
         if (!mainHandler().configurationHandler().sneakEnabled()) return;
         Player owner = event.getPlayer();
 
-        NameTagDisplay nameTagDisplay = mainHandler().displayHandler().getPlayerNameTagDisplay(owner.getUniqueId());
-        if (nameTagDisplay == null) return;
+        TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
+        if (textDisplayEntity == null) return;
 
-        if (event.isSneaking()) nameTagDisplay.sneak();
-        else nameTagDisplay.unSneak();
+        if (event.isSneaking()) textDisplayEntity.sneak();
+        else textDisplayEntity.unSneak();
     }
 
     @EventHandler
     public void onRespawn(PlayerPostRespawnEvent event){
         Player owner = event.getPlayer();
-        NameTagDisplay nameTagDisplay = mainHandler().displayHandler().getPlayerNameTagDisplay(owner.getUniqueId());
-        if (nameTagDisplay == null) return;
+        TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
+        if (textDisplayEntity == null) return;
 
-        nameTagDisplay.showFor(owner, mainHandler().configurationHandler().showForOwners());
+        textDisplayEntity.showFor(owner, mainHandler().configurationHandler().showForOwners());
     }
 }

@@ -4,7 +4,7 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.EventManager;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import me.stivendarsi.nameDisplay.commands.CommandHandler;
-import me.stivendarsi.nameDisplay.packetlisteners.DisplayExistenceHandler;
+import me.stivendarsi.nameDisplay.packetlisteners.RegisterDisplayHandlerHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.HideDisplayHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.ShowDisplayHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.SneakPacketHandler;
@@ -35,7 +35,7 @@ public final class NameDisplay extends JavaPlugin {
 
         PacketEvents.getAPI().load();
         EventManager events = PacketEvents.getAPI().getEventManager();
-        events.registerListener(new DisplayExistenceHandler(), PacketListenerPriority.NORMAL);
+        events.registerListener(new RegisterDisplayHandlerHandler(), PacketListenerPriority.NORMAL);
         events.registerListener(new HideDisplayHandler(), PacketListenerPriority.NORMAL);
         events.registerListener(new ShowDisplayHandler(), PacketListenerPriority.NORMAL);
        // events.registerListener(new SneakPacketHandler(), PacketListenerPriority.NORMAL);

@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.EntitySelectorArgumentResolver;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
-import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
+import me.stivendarsi.nameDisplay.utility.TextDisplayEntity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
@@ -33,16 +33,16 @@ public class UtilityCommands {
 
         // Load displays for online players.
         for (Player owner : Bukkit.getOnlinePlayers()) {
-            NameTagDisplay nameTagDisplay = new NameTagDisplay(owner.getUniqueId());
-            mainHandler().displayHandler().registerDisplay(owner.getUniqueId(), nameTagDisplay);
+            TextDisplayEntity textDisplayEntity = new TextDisplayEntity(owner.getUniqueId());
+            mainHandler().displayHandler().registerDisplay(owner.getUniqueId(), textDisplayEntity);
 
-            nameTagDisplay.startTextUpdating();
+            textDisplayEntity.startTextUpdating();
 
             // add viewers
             for (Player player : owner.getTrackedBy()) {
-                nameTagDisplay.showFor(player, mainHandler().configurationHandler().showForOwners());
+                textDisplayEntity.showFor(player, mainHandler().configurationHandler().showForOwners());
             }
-            nameTagDisplay.showFor(owner, mainHandler().configurationHandler().showForOwners());
+            textDisplayEntity.showFor(owner, mainHandler().configurationHandler().showForOwners());
         }
 
         return 1;

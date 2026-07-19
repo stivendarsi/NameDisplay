@@ -1,7 +1,7 @@
 package me.stivendarsi.nameDisplay.handlers;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import me.stivendarsi.nameDisplay.utility.DisplayProperties;
+import me.stivendarsi.nameDisplay.utility.TextDisplayData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -17,8 +17,8 @@ public class ConfigurationHandler {
     private boolean showForOwners;
     private boolean debug;
 
-    private DisplayProperties properties;
-    private DisplayProperties sneakProperties;
+    private TextDisplayData data;
+    private TextDisplayData sneakData;
 
     private boolean sneakEnabled;
 
@@ -26,12 +26,12 @@ public class ConfigurationHandler {
     public void load() {
         ConfigurationSection defaultSection = plugin().getConfig().getConfigurationSection("properties");
         if (defaultSection == null) throw new RuntimeException("No default properties section");
-        this.properties = new DisplayProperties(defaultSection);
+        this.data = new TextDisplayData(defaultSection);
 
 
         ConfigurationSection sneakSection = plugin().getConfig().getConfigurationSection("sneak-properties");
         if (sneakSection == null) throw new RuntimeException("No sneak properties section");
-        this.sneakProperties = new DisplayProperties(sneakSection);
+        this.sneakData = new TextDisplayData(sneakSection);
         this.sneakEnabled = sneakSection.getBoolean("enabled");
 
         List<String> textInLines = plugin().getConfig().getStringList("text");
@@ -44,7 +44,6 @@ public class ConfigurationHandler {
         this.debug = miscSection.getBoolean("debug");
         double updateIntervalInSeconds = miscSection.getDouble("update-interval", -1);
         this.updateIntervalInTicks = (long) (updateIntervalInSeconds * 20);
-
     }
 
     public long updateIntervalInTicks() {
@@ -64,15 +63,15 @@ public class ConfigurationHandler {
         return sneakEnabled;
     }
 
-    public DisplayProperties properties() {
-        return properties;
+    public TextDisplayData properties() {
+        return data;
     }
 
-    public DisplayProperties sneakProperties() {
-        return sneakProperties;
+    public TextDisplayData sneakProperties() {
+        return sneakData;
     }
 
-    public String getWithSetPlaceholders(@Nullable Player player) {
+    public String getTextWithSetPlaceholders(@Nullable Player player) {
         return mainHandler().placeholderApiEnabled() && player != null ? PlaceholderAPI.setPlaceholders(player, this.text) : this.text;
     }
 }

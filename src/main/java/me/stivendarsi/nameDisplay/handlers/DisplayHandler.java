@@ -1,6 +1,6 @@
 package me.stivendarsi.nameDisplay.handlers;
 
-import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
+import me.stivendarsi.nameDisplay.utility.TextDisplayEntity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,24 +11,24 @@ import java.util.UUID;
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 
 public class DisplayHandler {
-    Map<UUID, NameTagDisplay> playerNameDisplays; // Player UUID, display
+    Map<UUID, TextDisplayEntity> playerNameDisplays; // Player UUID, display
 
     public void load() {
         this.playerNameDisplays = new HashMap<>();
     }
 
-    public void registerDisplay(UUID playerUUID, NameTagDisplay display) {
+    public void registerDisplay(UUID playerUUID, TextDisplayEntity display) {
         this.playerNameDisplays.put(playerUUID, display);
     }
 
     public void unRegisterDisplay(UUID playerUUID) {
-        NameTagDisplay nameTagDisplay = getPlayerNameTagDisplay(playerUUID);
-        if (nameTagDisplay != null) nameTagDisplay.disableAndHideForViewers();
+        TextDisplayEntity textDisplayEntity = getPlayerTextDisplay(playerUUID);
+        if (textDisplayEntity != null) textDisplayEntity.disableAndHideForViewers();
         this.playerNameDisplays.remove(playerUUID);
     }
 
     public void unRegisterDisplays() {
-        for (NameTagDisplay value : this.playerNameDisplays.values()) {
+        for (TextDisplayEntity value : this.playerNameDisplays.values()) {
             value.disableAndHideForViewers();
         }
         this.playerNameDisplays.clear();
@@ -43,15 +43,15 @@ public class DisplayHandler {
     }
 
     @Nullable
-    public NameTagDisplay getPlayerNameTagDisplay(@Nullable UUID uuid){
+    public TextDisplayEntity getPlayerTextDisplay(@Nullable UUID uuid){
         if (uuid == null) return null;
         return this.playerNameDisplays.getOrDefault(uuid, null);
     }
 
 
     public void showAllExistingDisplays(Player playerToShow){
-        for (NameTagDisplay nameTagDisplay : this.playerNameDisplays.values()) {
-                nameTagDisplay.showFor(playerToShow, mainHandler().configurationHandler().showForOwners());
+        for (TextDisplayEntity textDisplayEntity : this.playerNameDisplays.values()) {
+                textDisplayEntity.showFor(playerToShow, mainHandler().configurationHandler().showForOwners());
         }
     }
 }

@@ -6,15 +6,21 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.List;
 
-public class DisplayProperties {
+public class TextDisplayData {
     private final int backgroundOpacity;
     private final byte textOpacity;
     private final Vector3f translation;
     private final byte billboard;
-    private final int maxWidth;
+    private final int maxLineWidth;
+    private final float renderWidth;
+    private final float renderHeight;
 
-    public DisplayProperties(ConfigurationSection section) {
-        this.maxWidth = section.getInt("max-width", 200);
+    public TextDisplayData(ConfigurationSection section) {
+        this.maxLineWidth = section.getInt("max-line-width", 200);
+
+        this.renderHeight = section.getInt("render-height", 0);
+        this.renderWidth = section.getInt("render-width", 0);
+
         int opacity = section.getInt("opacity", 100);
         this.textOpacity = (byte) (opacity > 127 ? opacity - 256 : opacity);
         this.backgroundOpacity = Color.fromARGB(section.getInt("background-opacity", 63), 0, 0, 0).asARGB();
@@ -38,8 +44,17 @@ public class DisplayProperties {
         return translation;
     }
 
-    public int maxWidth() {
-        return maxWidth;
+
+    public float renderHeight() {
+        return renderHeight;
+    }
+
+    public float renderWidth() {
+        return renderWidth;
+    }
+
+    public int maxLineWidth() {
+        return maxLineWidth;
     }
 
     public byte billboard() {

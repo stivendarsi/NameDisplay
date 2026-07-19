@@ -10,6 +10,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerDe
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityMetadata;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSetPassengers;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
+import io.github.miniplaceholders.api.MiniPlaceholders;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
 import me.stivendarsi.nameDisplay.handlers.ConfigurationHandler;
@@ -19,15 +20,17 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 import static me.stivendarsi.nameDisplay.NameDisplay.plugin;
 
-public class NameTagDisplay {
+public class TextDisplayEntity {
     private final int entityID;
     private final UUID entityUUID;
     private final UUID ownerUUID;
@@ -38,7 +41,7 @@ public class NameTagDisplay {
     private final WrapperPlayServerSetPassengers serverSetPassengers;
     private final WrapperPlayServerDestroyEntities removePacket;
 
-    public NameTagDisplay(UUID ownerUUID) {
+    public TextDisplayEntity(UUID ownerUUID) {
         this.viewers = new ArrayList<>();
         this.entityUUID = UUID.randomUUID();
         this.ownerUUID = ownerUUID;
@@ -78,7 +81,7 @@ public class NameTagDisplay {
         }
     }
 
-    public void showFor(Player viewer, boolean visibleToTheOwner) {
+    public void showFor(@NotNull Player viewer, boolean visibleToTheOwner) {
         if (!visibleToTheOwner && viewer.getUniqueId().equals(this.ownerUUID)) return;
         Player owner = Bukkit.getPlayer(this.ownerUUID);
         if (owner == null) return;
@@ -88,8 +91,8 @@ public class NameTagDisplay {
         WrapperPlayServerSpawnEntity serverSpawnEntity = new WrapperPlayServerSpawnEntity(this.entityID,
                 this.entityUUID,
                 EntityTypes.TEXT_DISPLAY,
-                SpigotConversionUtil.fromBukkitLocation(owner.getLocation().add(0,2f,0)),
-                0,0,null
+                SpigotConversionUtil.fromBukkitLocation(owner.getLocation().add(0, 2f, 0)),
+                0, 0, null
         );
         user.sendPacket(serverSpawnEntity); // Spawn the display.
 
@@ -104,28 +107,34 @@ public class NameTagDisplay {
         user.sendPacket(getModePacket()); // Send default display properties.
         user.sendPacket(getUpdatedTextPacket());
 
+        if (viewer.getUniqueId() == null) throw new RuntimeException("Null UUID");
         this.viewers.add(viewer.getUniqueId());
     }
 
     public void disableAndHideForViewers() {
         stopTextUpdate();
-        List<UUID> uuids = List.copyOf(this.viewers);
+        List<UUID> uuids = this.viewers.stream()
+                .filter(Objects::nonNull)
+                .toList();
+
         for (UUID viewer : uuids) {
             Player player = Bukkit.getPlayer(viewer);
             if (player != null) hideFor(player);
         }
     }
 
-    public void hideFor(Player player) {
+    public void hideFor(Player viewer) {
         Player owner = Bukkit.getPlayer(ownerUUID);
         if (owner == null) return;
 
-        User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
+        User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
         user.sendPacket(this.removePacket);
 
         if (mainHandler().configurationHandler().debug())
-            owner.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> Hiding your display for %s".formatted(player.getName()));
-        this.viewers.remove(player.getUniqueId());
+            owner.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> Hiding your display for %s".formatted(viewer.getName()));
+
+        if (viewer.getUniqueId() == null) throw new RuntimeException("Null UUID");
+        this.viewers.remove(viewer.getUniqueId());
     }
 
     private void stopTextUpdate() {
@@ -160,21 +169,28 @@ public class NameTagDisplay {
         sendPacketsToViewers(updatedTextPacket); // Send default display properties.
     }
 
-    private WrapperPlayServerEntityMetadata getDisplayMeta(DisplayProperties displayProperties){
+    private WrapperPlayServerEntityMetadata getDisplayMeta(TextDisplayData textDisplayData) {
         List<EntityData<?>> metadata = new ArrayList<>();
-        EntityData<?> billboard = new EntityData<>(15, EntityDataTypes.BYTE, displayProperties.billboard()); // Display.Billboard.CENTER
+
+        EntityData<?> renderWidth = new EntityData<>(20, EntityDataTypes.FLOAT, textDisplayData.renderWidth());
+        metadata.add(renderWidth);
+
+        EntityData<?> renderHeight = new EntityData<>(21, EntityDataTypes.FLOAT, textDisplayData.renderHeight());
+        metadata.add(renderHeight);
+
+        EntityData<?> billboard = new EntityData<>(15, EntityDataTypes.BYTE, textDisplayData.billboard()); // Display.Billboard.CENTER
         metadata.add(billboard);
 
-        EntityData<?> textWidth = new EntityData<>(24, EntityDataTypes.INT, displayProperties.maxWidth()); // Display.Billboard.CENTER
+        EntityData<?> textWidth = new EntityData<>(24, EntityDataTypes.INT, textDisplayData.maxLineWidth());
         metadata.add(textWidth);
 
-        EntityData<?> translation = new EntityData<>(11, EntityDataTypes.VECTOR3F, displayProperties.translation()); // Translate the display 0.25 above the player
+        EntityData<?> translation = new EntityData<>(11, EntityDataTypes.VECTOR3F, textDisplayData.translation()); // Translate the display 0.25 above the player
         metadata.add(translation);
 
-        EntityData<?> textOpacityData = new EntityData<>(26, EntityDataTypes.BYTE, displayProperties.textOpacity());
+        EntityData<?> textOpacityData = new EntityData<>(26, EntityDataTypes.BYTE, textDisplayData.textOpacity());
         metadata.add(textOpacityData);
 
-        EntityData<?> backgroundOpacityData = new EntityData<>(25, EntityDataTypes.INT, displayProperties.backgroundOpacity()); // Display.Billboard.CENTER
+        EntityData<?> backgroundOpacityData = new EntityData<>(25, EntityDataTypes.INT, textDisplayData.backgroundOpacity());
         metadata.add(backgroundOpacityData);
 
         return new WrapperPlayServerEntityMetadata(this.entityID, metadata);
@@ -182,9 +198,10 @@ public class NameTagDisplay {
 
     public WrapperPlayServerEntityMetadata getUpdatedTextPacket() {
         Player owner = Bukkit.getPlayer(ownerUUID);
+        if (owner == null) throw new RuntimeException("Null Owner.");
         List<EntityData<?>> metadata = new ArrayList<>();
 
-        Component text = MiniMessage.miniMessage().deserialize(mainHandler().configurationHandler().getWithSetPlaceholders(owner));
+        Component text = MiniMessage.miniMessage().deserialize(mainHandler().configurationHandler().getTextWithSetPlaceholders(owner), owner, MiniPlaceholders.audienceGlobalPlaceholders());
 
         EntityData<?> textData = new EntityData<>(23, EntityDataTypes.ADV_COMPONENT, text);
 

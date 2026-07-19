@@ -6,7 +6,7 @@ import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnEntity;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
-import me.stivendarsi.nameDisplay.utility.NameTagDisplay;
+import me.stivendarsi.nameDisplay.utility.TextDisplayEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -26,11 +26,11 @@ public class ShowDisplayHandler implements PacketListener {
         if (serverSpawnEntity.getEntityType() != EntityTypes.PLAYER) return;
         if (!(entity instanceof Player owner)) return;
 
-        NameTagDisplay nameTagDisplay = mainHandler().displayHandler().getPlayerNameTagDisplay(owner.getUniqueId());
-        if (nameTagDisplay == null) return;
+        TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
+        if (textDisplayEntity == null) return;
 
         viewer.getScheduler().runDelayed(plugin(), task -> {
-            nameTagDisplay.showFor(viewer, mainHandler().configurationHandler().showForOwners());
+            textDisplayEntity.showFor(viewer, mainHandler().configurationHandler().showForOwners());
         }, null, 2);
     }
 }

@@ -1,21 +1,25 @@
 misc:
-  debug: true
+  debug: false
   show-for-owners: true
   update-interval: 2.0 #In seconds
 
 properties:
   background-opacity: 63
   opacity: 255
+  max-width: 400
   translation: [0,0.25,0]
   billboard: 3
-  max-width: 300
+  render-width: 10
+  render-height: 10
 sneak-properties:
   enabled: true
+  max-width: 400
   opacity: 100
   background-opacity: 30
-  max-width: 300
   translation: [0,0.25,0]
   billboard: 3
+  render-width: 10
+  render-height: 10
 text:
-  - "x: %player_x% y: %player_y% z: %player_z%"
-  - "%player_name%"
+  - " <luckperms_prefix> <voice_chat_status>"
+  - " <luckperms_meta:color>%player_name% "
