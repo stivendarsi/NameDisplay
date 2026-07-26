@@ -39,6 +39,7 @@ public class TextDisplayEntity {
     private boolean textUpdating;
     private final List<UUID> viewers;
     private boolean isSneaking;
+    private World currentWorld = null;
 
     private final WrapperPlayServerDestroyEntities removePacket;
 
@@ -51,19 +52,27 @@ public class TextDisplayEntity {
         Player owner = Bukkit.getPlayer(this.ownerUUID);
         if (owner == null) throw new RuntimeException("Null owner");
 
-       changeEntityId(owner.getWorld());
+        handleWorldChange(owner.getWorld());
 
-     //   this.serverSetPassengers = new WrapperPlayServerSetPassengers(owner.getEntityId(), new int[]{this.entityID});
+        //   this.serverSetPassengers = new WrapperPlayServerSetPassengers(owner.getEntityId(), new int[]{this.entityID});
         this.removePacket = new WrapperPlayServerDestroyEntities(this.entityID);
     }
 
     // Use only in dimension switching
-    public void changeEntityId(World world){
+
+    public void handleWorldChange(World world) {
+        if (currentWorld != world) {
+            changeEntityId(world);
+            this.currentWorld = world;
+        }
+    }
+
+    private void changeEntityId(World world) {
         if (entityID != 0) disableAndHideForViewers();
         else this.entityID = SpigotReflectionUtil.generateEntityId(world);
     }
 
-    private WrapperPlayServerSetPassengers getServerSetPassengers(Player owner){
+    private WrapperPlayServerSetPassengers getServerSetPassengers(Player owner) {
         return new WrapperPlayServerSetPassengers(owner.getEntityId(), new int[]{this.entityID});
     }
 

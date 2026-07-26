@@ -1,8 +1,10 @@
 package me.stivendarsi.nameDisplay.packetlisteners;
 
-import com.github.retrooper.packetevents.event.PacketListener;
-import com.github.retrooper.packetevents.event.UserDisconnectEvent;
-import com.github.retrooper.packetevents.event.UserLoginEvent;
+import com.github.retrooper.packetevents.event.*;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.protocol.packettype.PacketTypeConstant;
+import com.github.retrooper.packetevents.wrapper.PacketTypeData;
+import me.stivendarsi.nameDisplay.NameDisplay;
 import me.stivendarsi.nameDisplay.utility.TextDisplayEntity;
 import org.bukkit.entity.Player;
 
@@ -31,5 +33,20 @@ public class RegisterDisplayHandlerHandler implements PacketListener {
         TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(uuid);
         if (textDisplayEntity == null) return;
         mainHandler().displayHandler().unRegisterDisplay(uuid);
+    }
+
+    @Override
+    public void onPacketReceive(PacketReceiveEvent event) {
+        if (event.getPacketType() != PacketType.Play.Client.TELEPORT_CONFIRM) return;
+        Player owner = event.getPlayer();
+        owner.sendRichMessage("שוגר");
+
+        System.out.println("AAHAHHAHA");
+
+        TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
+        if (textDisplayEntity == null) return;
+        owner.getScheduler().runDelayed(NameDisplay.nameDisplay(), task -> {
+            textDisplayEntity.showFor(owner, mainHandler().configurationHandler().showForOwners());
+        }, null, 1L);
     }
 }
