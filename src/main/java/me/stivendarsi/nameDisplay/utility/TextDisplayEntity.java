@@ -139,7 +139,7 @@ public class TextDisplayEntity {
                 viewer.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> <name>'s display was shown to you", namePlaceHolder);
         }
         user.sendPacket(getServerSetPassengers(owner)); // Set display as a passenger of the player.
-        viewer.sendRichMessage("<gold>Set passengers");
+
         user.sendPacket(getModePacket()); // Send default display properties.
         user.sendPacket(getUpdatedTextPacket());
 

@@ -39,9 +39,6 @@ public class RegisterDisplayHandlerHandler implements PacketListener {
     public void onPacketReceive(PacketReceiveEvent event) {
         if (event.getPacketType() != PacketType.Play.Client.TELEPORT_CONFIRM) return;
         Player owner = event.getPlayer();
-        owner.sendRichMessage("שוגר");
-
-        System.out.println("AAHAHHAHA");
 
         TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
         if (textDisplayEntity == null) return;
