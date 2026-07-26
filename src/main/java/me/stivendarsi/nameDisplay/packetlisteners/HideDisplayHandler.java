@@ -17,24 +17,23 @@ import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 
 public class HideDisplayHandler implements PacketListener {
 
-    @Override
-    public void onPacketSend(PacketSendEvent event) {
-        if (event.getPacketType() != PacketType.Play.Server.DESTROY_ENTITIES) return;
-        if (event.isCancelled()) return;
-        Player viewer = event.getPlayer();
-        WrapperPlayServerDestroyEntities destroyEntities = new WrapperPlayServerDestroyEntities(event);
-        viewer.sendRichMessage("נמחקו ישויות");
-
-        for (int entityId : destroyEntities.getEntityIds()) {
-
-            Entity entity = SpigotConversionUtil.getEntityById(viewer.getWorld(), entityId);
-            if (!(entity instanceof Player owner)) continue;
-
-            TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
-            if (textDisplayEntity == null) continue;
-
-
-            textDisplayEntity.hideFor(viewer);
-        }
-    }
+//    @Override
+//    public void onPacketSend(PacketSendEvent event) {
+//        if (event.getPacketType() != PacketType.Play.Server.DESTROY_ENTITIES) return;
+//        if (event.isCancelled()) return;
+//        Player viewer = event.getPlayer();
+//        WrapperPlayServerDestroyEntities destroyEntities = new WrapperPlayServerDestroyEntities(event);
+//
+//        for (int entityId : destroyEntities.getEntityIds()) {
+//
+//            Entity entity = SpigotConversionUtil.getEntityById(viewer.getWorld(), entityId);
+//            if (!(entity instanceof Player owner)) continue;
+//
+//            TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
+//            if (textDisplayEntity == null) continue;
+//
+//
+//            textDisplayEntity.hideFor(viewer);
+//        }
+//    }
 }

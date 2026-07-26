@@ -19,6 +19,8 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,31 +30,41 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
-import static me.stivendarsi.nameDisplay.NameDisplay.plugin;
+import static me.stivendarsi.nameDisplay.NameDisplay.nameDisplay;
 
 public class TextDisplayEntity {
-    private final int entityID;
+    private int entityID;
     private final UUID entityUUID;
     private final UUID ownerUUID;
     private boolean textUpdating;
     private final List<UUID> viewers;
     private boolean isSneaking;
 
-    private final WrapperPlayServerSetPassengers serverSetPassengers;
     private final WrapperPlayServerDestroyEntities removePacket;
 
     public TextDisplayEntity(UUID ownerUUID) {
         this.viewers = new ArrayList<>();
         this.entityUUID = UUID.randomUUID();
         this.ownerUUID = ownerUUID;
-        this.entityID = SpigotReflectionUtil.generateEntityId();
         this.textUpdating = false;
 
         Player owner = Bukkit.getPlayer(this.ownerUUID);
         if (owner == null) throw new RuntimeException("Null owner");
 
-        this.serverSetPassengers = new WrapperPlayServerSetPassengers(owner.getEntityId(), new int[]{this.entityID});
+       changeEntityId(owner.getWorld());
+
+     //   this.serverSetPassengers = new WrapperPlayServerSetPassengers(owner.getEntityId(), new int[]{this.entityID});
         this.removePacket = new WrapperPlayServerDestroyEntities(this.entityID);
+    }
+
+    // Use only in dimension switching
+    public void changeEntityId(World world){
+        if (entityID != 0) disableAndHideForViewers();
+        else this.entityID = SpigotReflectionUtil.generateEntityId(world);
+    }
+
+    private WrapperPlayServerSetPassengers getServerSetPassengers(Player owner){
+        return new WrapperPlayServerSetPassengers(owner.getEntityId(), new int[]{this.entityID});
     }
 
     public void sneak() {
@@ -77,37 +89,52 @@ public class TextDisplayEntity {
             Player viewer = Bukkit.getPlayer(viewerUUID);
             if (viewer == null) continue;
             User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
+            if (user == null) {
+                nameDisplay().getLogger().warning("Null user");
+                return;
+            }
             user.sendPacket(packet);
         }
     }
 
     public void showFor(@NotNull Player viewer, boolean visibleToTheOwner) {
-        if (!visibleToTheOwner && viewer.getUniqueId().equals(this.ownerUUID)) return;
+        if (!visibleToTheOwner && viewer.getUniqueId().equals(this.ownerUUID)) {
+            viewer.sendRichMessage("בוטל כי: uuid: " + viewer.getUniqueId().equals(this.ownerUUID));
+            viewer.sendRichMessage("בוטל כי: visible: " + false);
+            return;
+        }
         Player owner = Bukkit.getPlayer(this.ownerUUID);
-        if (owner == null) return;
+        if (owner == null) {
+            throw new RuntimeException("Null owner");
+        }
 
         User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
+        if (user == null) throw new RuntimeException("Null packet user");
+
+        Location loc = owner.getLocation();
 
         WrapperPlayServerSpawnEntity serverSpawnEntity = new WrapperPlayServerSpawnEntity(this.entityID,
                 this.entityUUID,
                 EntityTypes.TEXT_DISPLAY,
-                SpigotConversionUtil.fromBukkitLocation(owner.getLocation().add(0, 2f, 0)),
+                SpigotConversionUtil.fromBukkitLocation(loc.add(0, 2f, 0)),
                 0, 0, null
         );
+
         user.sendPacket(serverSpawnEntity); // Spawn the display.
 
         if (mainHandler().configurationHandler().debug()) {
             TagResolver.Single namePlaceHolder = Placeholder.parsed("name", "<#ffbdec>" + owner.getName() + "</#ffbdec>");
-            if (visibleToTheOwner)
+            if (ownerUUID.equals(viewer.getUniqueId()))
                 viewer.sendRichMessage("<yellow>Debug <gray>|</gray> Self Visible</yellow><#7dffe5> - <name>'s display was shown to you", namePlaceHolder);
             else
                 viewer.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> <name>'s display was shown to you", namePlaceHolder);
         }
-        user.sendPacket(this.serverSetPassengers); // Set display as a passenger of the player.
+        user.sendPacket(getServerSetPassengers(owner)); // Set display as a passenger of the player.
+        viewer.sendRichMessage("<gold>Set passengers");
         user.sendPacket(getModePacket()); // Send default display properties.
         user.sendPacket(getUpdatedTextPacket());
 
-        if (viewer.getUniqueId() == null) throw new RuntimeException("Null UUID");
+        viewer.getUniqueId();
         this.viewers.add(viewer.getUniqueId());
     }
 
@@ -128,12 +155,16 @@ public class TextDisplayEntity {
         if (owner == null) return;
 
         User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
+        if (user == null) {
+            nameDisplay().getLogger().warning("Null user");
+            return;
+        }
         user.sendPacket(this.removePacket);
 
         if (mainHandler().configurationHandler().debug())
             owner.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> Hiding your display for %s".formatted(viewer.getName()));
 
-        if (viewer.getUniqueId() == null) throw new RuntimeException("Null UUID");
+        viewer.getUniqueId();
         this.viewers.remove(viewer.getUniqueId());
     }
 
@@ -154,7 +185,7 @@ public class TextDisplayEntity {
         // If interval is enabled, update at fixed rate.
         if (0 < interval) {
             this.textUpdating = true;
-            owner.getScheduler().runAtFixedRate(plugin(), task -> {
+            owner.getScheduler().runAtFixedRate(nameDisplay(), task -> {
                 if (textUpdating) updateTextForAll();
                 else task.cancel();
             }, null, 1, interval);
@@ -207,10 +238,6 @@ public class TextDisplayEntity {
 
         metadata.add(textData);
         return new WrapperPlayServerEntityMetadata(this.entityID, metadata);
-    }
-
-    public int entityID() {
-        return entityID;
     }
 
     public UUID entityUUID() {

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
-import static me.stivendarsi.nameDisplay.NameDisplay.plugin;
+import static me.stivendarsi.nameDisplay.NameDisplay.nameDisplay;
 
 public class ConfigurationHandler {
     private long updateIntervalInTicks;
@@ -24,20 +24,20 @@ public class ConfigurationHandler {
 
 
     public void load() {
-        ConfigurationSection defaultSection = plugin().getConfig().getConfigurationSection("properties");
+        ConfigurationSection defaultSection = nameDisplay().getConfig().getConfigurationSection("properties");
         if (defaultSection == null) throw new RuntimeException("No default properties section");
         this.data = new TextDisplayData(defaultSection);
 
 
-        ConfigurationSection sneakSection = plugin().getConfig().getConfigurationSection("sneak-properties");
+        ConfigurationSection sneakSection = nameDisplay().getConfig().getConfigurationSection("sneak-properties");
         if (sneakSection == null) throw new RuntimeException("No sneak properties section");
         this.sneakData = new TextDisplayData(sneakSection);
         this.sneakEnabled = sneakSection.getBoolean("enabled");
 
-        List<String> textInLines = plugin().getConfig().getStringList("text");
+        List<String> textInLines = nameDisplay().getConfig().getStringList("text");
         this.text = String.join("<newline>", textInLines);
 
-        ConfigurationSection miscSection = plugin().getConfig().getConfigurationSection("misc");
+        ConfigurationSection miscSection = nameDisplay().getConfig().getConfigurationSection("misc");
         if (miscSection == null) throw new RuntimeException("No misc properties section");
 
         this.showForOwners = miscSection.getBoolean("show-for-owners");

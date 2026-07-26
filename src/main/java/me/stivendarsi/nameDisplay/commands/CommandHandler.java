@@ -24,6 +24,7 @@ public class CommandHandler {
 //                            )
 //                    )
 //                    .build(), List.of("sd"));
+
             commands.register(Commands.literal("namedisplay")
                     .then(Commands.literal("reload").executes(UtilityCommands::reloadCommand))
                     .then(Commands.literal("show-all-displays").then(Commands.argument("player", player()).executes(UtilityCommands::showAllDisplaysCommand)))

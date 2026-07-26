@@ -7,14 +7,14 @@ import me.stivendarsi.nameDisplay.commands.CommandHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.RegisterDisplayHandlerHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.HideDisplayHandler;
 import me.stivendarsi.nameDisplay.packetlisteners.ShowDisplayHandler;
-import me.stivendarsi.nameDisplay.packetlisteners.SneakPacketHandler;
+import me.stivendarsi.nameDisplay.packetlisteners.BukkitListenerHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class NameDisplay extends JavaPlugin {
 
-    private static NameDisplay plugin;
-    public static NameDisplay plugin(){
-        return plugin;
+    private static NameDisplay nameDisplay;
+    public static NameDisplay nameDisplay(){
+        return nameDisplay;
     }
 
     private static MainHandler mainHandler;
@@ -25,7 +25,7 @@ public final class NameDisplay extends JavaPlugin {
     @Override
     public void onEnable() {
         // Plugin startup logic
-        plugin = this;
+        nameDisplay = this;
         mainHandler = new MainHandler();
 
         saveDefaultConfig();
@@ -39,7 +39,7 @@ public final class NameDisplay extends JavaPlugin {
         events.registerListener(new HideDisplayHandler(), PacketListenerPriority.NORMAL);
         events.registerListener(new ShowDisplayHandler(), PacketListenerPriority.NORMAL);
        // events.registerListener(new SneakPacketHandler(), PacketListenerPriority.NORMAL);
-        getServer().getPluginManager().registerEvents(new SneakPacketHandler(), this);
+        getServer().getPluginManager().registerEvents(new BukkitListenerHandler(), this);
 
         // Shake display
        // getServer().getPluginManager().registerEvents(new HitBoxInteractionEventHandler(), this);

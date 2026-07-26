@@ -21,13 +21,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
-import static me.stivendarsi.nameDisplay.NameDisplay.plugin;
+import static me.stivendarsi.nameDisplay.NameDisplay.nameDisplay;
 
 public class UtilityCommands {
     public static int reloadCommand(CommandContext<CommandSourceStack> context) {
 
         mainHandler().displayHandler().unRegisterDisplays();
-        plugin().reloadConfig();
+        nameDisplay().reloadConfig();
         mainHandler().load();
         context.getSource().getSender().sendRichMessage("<#aeff00>Name Display Reloaded!</#aeff00>");
 

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static me.stivendarsi.nameDisplay.NameDisplay.plugin;
+import static me.stivendarsi.nameDisplay.NameDisplay.nameDisplay;
 
 public class ShakedDisplay {
     private final UUID displayUUID;
@@ -103,7 +103,7 @@ public class ShakedDisplay {
         int durationTick = Math.max((int) (this.durationSecond * 20), 1);
         Sound sound = Sound.sound(Key.key("minecraft:item.bundle.drop_contents"), Sound.Source.UI, 1, 1);
 
-        this.scheduledTask = display.getScheduler().runAtFixedRate(plugin(), task -> {
+        this.scheduledTask = display.getScheduler().runAtFixedRate(nameDisplay(), task -> {
             if (!display.isValid() || this.scheduledTask != task) {
                 task.cancel();
                 return;
