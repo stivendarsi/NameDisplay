@@ -40,9 +40,9 @@ public class UtilityCommands {
 
             // add viewers
             for (Player player : owner.getTrackedBy()) {
-                textDisplayEntity.showFor(player, mainHandler().configurationHandler().showForOwners());
+                textDisplayEntity.showForAsync(player, mainHandler().configurationHandler().showForOwners());
             }
-            textDisplayEntity.showFor(owner, mainHandler().configurationHandler().showForOwners());
+            textDisplayEntity.showForAsync(owner, mainHandler().configurationHandler().showForOwners());
         }
 
         return 1;

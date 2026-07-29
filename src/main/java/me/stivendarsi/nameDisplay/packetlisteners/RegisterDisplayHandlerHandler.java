@@ -2,8 +2,6 @@ package me.stivendarsi.nameDisplay.packetlisteners;
 
 import com.github.retrooper.packetevents.event.*;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
-import com.github.retrooper.packetevents.protocol.packettype.PacketTypeConstant;
-import com.github.retrooper.packetevents.wrapper.PacketTypeData;
 import me.stivendarsi.nameDisplay.NameDisplay;
 import me.stivendarsi.nameDisplay.utility.TextDisplayEntity;
 import org.bukkit.entity.Player;
@@ -24,14 +22,12 @@ public class RegisterDisplayHandlerHandler implements PacketListener {
             mainHandler().displayHandler().registerDisplay(owner.getUniqueId(), textDisplayEntity);
         }
         textDisplayEntity.startTextUpdating();
-        textDisplayEntity.showFor(event.getPlayer(), mainHandler().configurationHandler().showForOwners());
+        textDisplayEntity.showForAsync(event.getPlayer(), mainHandler().configurationHandler().showForOwners());
     }
 
     @Override
     public void onUserDisconnect(UserDisconnectEvent event) {
         UUID uuid = event.getUser().getUUID();
-        TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(uuid);
-        if (textDisplayEntity == null) return;
         mainHandler().displayHandler().unRegisterDisplay(uuid);
     }
 
@@ -43,7 +39,7 @@ public class RegisterDisplayHandlerHandler implements PacketListener {
         TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
         if (textDisplayEntity == null) return;
         owner.getScheduler().runDelayed(NameDisplay.nameDisplay(), task -> {
-            textDisplayEntity.showFor(owner, mainHandler().configurationHandler().showForOwners());
+            textDisplayEntity.showForAsync(owner, mainHandler().configurationHandler().showForOwners());
         }, null, 1L);
     }
 }

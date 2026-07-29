@@ -94,19 +94,28 @@ public class TextDisplayEntity {
     }
 
     private void sendPacketsToViewers(PacketWrapper<?> packet) {
-        for (UUID viewerUUID : this.viewers) {
-            Player viewer = Bukkit.getPlayer(viewerUUID);
-            if (viewer == null) continue;
-            User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
-            if (user == null) {
-                nameDisplay().getLogger().warning("Null user");
-                return;
+        List<UUID> viewersSnapshot = new ArrayList<>(this.viewers);
+        nameDisplay().getServer().getAsyncScheduler().runNow(nameDisplay(), _ -> {
+            for (UUID viewerUUID : viewersSnapshot) {
+                Player viewer = Bukkit.getPlayer(viewerUUID);
+                if (viewer == null) continue;
+                User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
+                if (user == null) {
+                    nameDisplay().getLogger().warning("Null user");
+                    return;
+                }
+                user.sendPacket(packet);
             }
-            user.sendPacket(packet);
-        }
+        });
     }
 
-    public void showFor(@NotNull Player viewer, boolean visibleToTheOwner) {
+    public void showForAsync(@NotNull Player viewer, boolean visibleToTheOwner){
+        nameDisplay().getServer().getAsyncScheduler().runNow(nameDisplay(), scheduledTask -> {
+            showDisplayForUser(viewer, visibleToTheOwner);
+        });
+    }
+
+    private void showDisplayForUser(@NotNull Player viewer, boolean visibleToTheOwner) {
         if (!visibleToTheOwner && viewer.getUniqueId().equals(this.ownerUUID)) {
             viewer.sendRichMessage("בוטל כי: uuid: " + viewer.getUniqueId().equals(this.ownerUUID));
             viewer.sendRichMessage("בוטל כי: visible: " + false);
@@ -165,7 +174,7 @@ public class TextDisplayEntity {
 
         User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
         if (user == null) {
-            nameDisplay().getLogger().warning("Null user");
+           // nameDisplay().getLogger().warning("Null user");
             return;
         }
         user.sendPacket(this.removePacket);
