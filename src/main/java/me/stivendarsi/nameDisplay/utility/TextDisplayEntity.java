@@ -22,12 +22,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 import static me.stivendarsi.nameDisplay.NameDisplay.nameDisplay;
@@ -37,14 +35,14 @@ public class TextDisplayEntity {
     private final UUID entityUUID;
     private final UUID ownerUUID;
     private boolean textUpdating;
-    private final List<UUID> viewers;
+    // private final List<UUID> viewers;
     private boolean isSneaking;
     private World currentWorld = null;
 
     private final WrapperPlayServerDestroyEntities removePacket;
 
     public TextDisplayEntity(UUID ownerUUID) {
-        this.viewers = new ArrayList<>();
+        // this.viewers = new ArrayList<>();
         this.entityUUID = UUID.randomUUID();
         this.ownerUUID = ownerUUID;
         this.textUpdating = false;
@@ -94,37 +92,42 @@ public class TextDisplayEntity {
     }
 
     private void sendPacketsToViewers(PacketWrapper<?> packet) {
-        List<UUID> viewersSnapshot = new ArrayList<>(this.viewers);
+
+        Player owner = Bukkit.getPlayer(this.ownerUUID);
+        if (owner == null) return;
+        Set<Player> viewersSet = getViewers();
+
         nameDisplay().getServer().getAsyncScheduler().runNow(nameDisplay(), _ -> {
-            for (UUID viewerUUID : viewersSnapshot) {
-                Player viewer = Bukkit.getPlayer(viewerUUID);
+            for (Player viewer : viewersSet) {
                 if (viewer == null) continue;
                 User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
-                if (user == null) {
-                    nameDisplay().getLogger().warning("Null user");
-                    return;
-                }
-                user.sendPacket(packet);
+                if (user == null) nameDisplay().getLogger().warning("Null user");
+                else user.sendPacket(packet);
+            }
+
+            // handle owner packets
+            if (mainHandler().configurationHandler().visibleForOwners()) {
+                User user = PacketEvents.getAPI().getPlayerManager().getUser(owner);
+                if (user == null) nameDisplay().getLogger().warning("Null owner user");
+                else user.sendPacket(packet);
             }
         });
     }
 
-    public void showForAsync(@NotNull Player viewer, boolean visibleToTheOwner){
+    public void showForAsync(@NotNull Player viewer, boolean visibleToTheOwner) {
         nameDisplay().getServer().getAsyncScheduler().runNow(nameDisplay(), scheduledTask -> {
             showDisplayForUser(viewer, visibleToTheOwner);
         });
     }
 
     private void showDisplayForUser(@NotNull Player viewer, boolean visibleToTheOwner) {
-        if (!visibleToTheOwner && viewer.getUniqueId().equals(this.ownerUUID)) {
-            viewer.sendRichMessage("בוטל כי: uuid: " + viewer.getUniqueId().equals(this.ownerUUID));
-            viewer.sendRichMessage("בוטל כי: visible: " + false);
-            return;
-        }
+        boolean isViewerTheOwner = viewer.getUniqueId().equals(this.ownerUUID);
+        if (isViewerTheOwner && !visibleToTheOwner) return;
+
         Player owner = Bukkit.getPlayer(this.ownerUUID);
-        if (owner == null) {
-            throw new RuntimeException("Null owner");
-        }
+        if (owner == null) throw new RuntimeException("Null owner");
+
+        if (owner.hasPotionEffect(PotionEffectType.INVISIBILITY) && !isViewerTheOwner) return;
 
         User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
         if (user == null) throw new RuntimeException("Null packet user");
@@ -142,7 +145,7 @@ public class TextDisplayEntity {
 
         if (mainHandler().configurationHandler().debug()) {
             TagResolver.Single namePlaceHolder = Placeholder.parsed("name", "<#ffbdec>" + owner.getName() + "</#ffbdec>");
-            if (ownerUUID.equals(viewer.getUniqueId()))
+            if (isViewerTheOwner)
                 viewer.sendRichMessage("<yellow>Debug <gray>|</gray> Self Visible</yellow><#7dffe5> - <name>'s display was shown to you", namePlaceHolder);
             else
                 viewer.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> <name>'s display was shown to you", namePlaceHolder);
@@ -153,19 +156,25 @@ public class TextDisplayEntity {
         user.sendPacket(getUpdatedTextPacket());
 
         viewer.getUniqueId();
-        this.viewers.add(viewer.getUniqueId());
+        //  this.viewers.add(viewer.getUniqueId());
     }
 
     public void disableAndHideForViewers() {
         stopTextUpdate();
-        List<UUID> uuids = this.viewers.stream()
-                .filter(Objects::nonNull)
-                .toList();
 
-        for (UUID viewer : uuids) {
-            Player player = Bukkit.getPlayer(viewer);
-            if (player != null) hideFor(player);
+        for (Player viewer : getViewers()) {
+            if (viewer != null && viewer.getUniqueId() != this.ownerUUID) hideFor(viewer);
         }
+    }
+
+    public Set<Player> getViewers() {
+        Player owner = Bukkit.getPlayer(this.ownerUUID);
+        if (owner == null) throw new RuntimeException("Null owner");
+        return getViewers(owner);
+    }
+
+    public Set<Player> getViewers(Player owner) {
+        return owner.getTrackedBy();
     }
 
     public void hideFor(Player viewer) {
@@ -174,7 +183,7 @@ public class TextDisplayEntity {
 
         User user = PacketEvents.getAPI().getPlayerManager().getUser(viewer);
         if (user == null) {
-           // nameDisplay().getLogger().warning("Null user");
+            // nameDisplay().getLogger().warning("Null user");
             return;
         }
         user.sendPacket(this.removePacket);
@@ -183,7 +192,7 @@ public class TextDisplayEntity {
             owner.sendRichMessage("<yellow>Debug <gray>|</gray></yellow><#7dffe5> Hiding your display for %s".formatted(viewer.getName()));
 
         viewer.getUniqueId();
-        this.viewers.remove(viewer.getUniqueId());
+        //  this.viewers.remove(viewer.getUniqueId());
     }
 
     private void stopTextUpdate() {

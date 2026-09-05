@@ -51,7 +51,7 @@ public class DisplayHandler {
 
     public void showAllExistingDisplays(Player playerToShow){
         for (TextDisplayEntity textDisplayEntity : this.playerNameDisplays.values()) {
-                textDisplayEntity.showForAsync(playerToShow, mainHandler().configurationHandler().showForOwners());
+                textDisplayEntity.showForAsync(playerToShow, mainHandler().configurationHandler().visibleForOwners());
         }
     }
 }

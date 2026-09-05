@@ -22,7 +22,7 @@ public class RegisterDisplayHandlerHandler implements PacketListener {
             mainHandler().displayHandler().registerDisplay(owner.getUniqueId(), textDisplayEntity);
         }
         textDisplayEntity.startTextUpdating();
-        textDisplayEntity.showForAsync(event.getPlayer(), mainHandler().configurationHandler().showForOwners());
+     //   textDisplayEntity.showForAsync(event.getPlayer(), mainHandler().configurationHandler().showForOwners());
     }
 
     @Override
@@ -39,7 +39,7 @@ public class RegisterDisplayHandlerHandler implements PacketListener {
         TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
         if (textDisplayEntity == null) return;
         owner.getScheduler().runDelayed(NameDisplay.nameDisplay(), task -> {
-            textDisplayEntity.showForAsync(owner, mainHandler().configurationHandler().showForOwners());
+            textDisplayEntity.showForAsync(owner, mainHandler().configurationHandler().visibleForOwners());
         }, null, 1L);
     }
 }

@@ -8,12 +8,14 @@ import me.stivendarsi.nameDisplay.utility.TextDisplayEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.bukkit.potion.PotionEffectType;
 
 import static me.stivendarsi.nameDisplay.NameDisplay.mainHandler;
 
-public class EventHandlers implements Listener {
+public class BukitEventHandlers implements Listener {
 
     @EventHandler
     public void onTrack(PlayerTrackEntityEvent event) {
@@ -29,9 +31,33 @@ public class EventHandlers implements Listener {
 
         TextDisplayEntity finalTextDisplayEntity = textDisplayEntity;
         viewer.getScheduler().runDelayed(NameDisplay.nameDisplay(), task -> {
-            finalTextDisplayEntity.showForAsync(viewer, mainHandler().configurationHandler().showForOwners());
+            finalTextDisplayEntity.showForAsync(viewer, mainHandler().configurationHandler().visibleForOwners());
         }, null, 1L);
 
+    }
+
+    @EventHandler
+    public void onInvisible(EntityPotionEffectEvent event) {
+        if (!(event.getEntity() instanceof Player owner)) return;
+
+        if (event.getModifiedType() != PotionEffectType.INVISIBILITY) return;
+
+        EntityPotionEffectEvent.Action action = event.getAction();
+
+        TextDisplayEntity displayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
+        if (displayEntity == null) return;
+        switch (action) {
+            case ADDED, CHANGED -> displayEntity.disableAndHideForViewers();
+            case REMOVED, CLEARED -> {
+                for (Player viewer : owner.getTrackedBy()) {
+                    viewer.getScheduler().runDelayed(NameDisplay.nameDisplay(), task -> {
+                        displayEntity.showForAsync(viewer, mainHandler().configurationHandler().visibleForOwners());
+                    }, null, 1L);
+                }
+
+                displayEntity.showForAsync(owner, mainHandler().configurationHandler().visibleForOwners());
+            }
+        }
     }
 
     @EventHandler
@@ -43,7 +69,7 @@ public class EventHandlers implements Listener {
     }
 
     @EventHandler
-    public void playerDeathEvent(PlayerDeathEvent event){
+    public void playerDeathEvent(PlayerDeathEvent event) {
         Player owner = event.getPlayer();
         TextDisplayEntity displayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
         if (displayEntity == null) return;
@@ -51,7 +77,7 @@ public class EventHandlers implements Listener {
     }
 
     @EventHandler
-    public void playerRespawnEvent(PlayerPostRespawnEvent event){
+    public void playerRespawnEvent(PlayerPostRespawnEvent event) {
         Player owner = event.getPlayer();
 
         TextDisplayEntity textDisplayEntity = mainHandler().displayHandler().getPlayerTextDisplay(owner.getUniqueId());
@@ -60,7 +86,7 @@ public class EventHandlers implements Listener {
             mainHandler().displayHandler().registerDisplay(owner.getUniqueId(), textDisplayEntity);
         }
         textDisplayEntity.startTextUpdating();
-        textDisplayEntity.showForAsync(event.getPlayer(), mainHandler().configurationHandler().showForOwners());
+        textDisplayEntity.showForAsync(event.getPlayer(), mainHandler().configurationHandler().visibleForOwners());
     }
 
     @EventHandler
